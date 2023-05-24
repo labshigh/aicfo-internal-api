@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.labshigh.aicfo.internal.api.staking.mapper.AdminWalletMapper">
+  <select id="list" resultType="com.labshigh.aicfo.internal.api.staking.dao.AdminWalletDao">
+    SELECT uid,
+           created_at,
+           updated_at,
+           deleted_flag,
+           used_flag,
+           wallet_address,
+           description,
+           admin_uid
+    FROM admin_wallet
+    WHERE deleted_flag = false AND
+          used_flag = true AND
+          admin_uid = #{adminUid}
+  </select>
+  <select id="count" resultType="int">
+    SELECT COUNT(*)
+    FROM admin_wallet
+    WHERE deleted_flag = false AND
+          used_flag = true AND
+          admin_uid = #{adminUid} AND
+          wallet_address = #{walletAddress}
+  </select>
+
+  <insert id="insert" >
+    INSERT INTO admin_wallet(wallet_address, description, admin_uid)
+    VALUES(#{walletAddress}, #{description}, #{adminUid})
+  </insert>
+
+  <update id="update">
+    UPDATE admin_wallet
+    SET description = #{description}
+    WHERE deleted_flag = false AND
+          used_flag = true AND
+          uid = #{uid} AND
+          admin_uid = #{adminUid}
+  </update>
+
+  <delete id="delete">
+    UPDATE admin_wallet
+    SET deleted_flag = true
+    WHERE deleted_flag = false AND
+          used_flag = true AND
+          uid = #{uid} AND
+          admin_uid = #{adminUid}
+  </delete>
+
+
+</mapper>

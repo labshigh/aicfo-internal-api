@@ -1,0 +1,81 @@
+app:
+  profile: local
+
+spring:
+  redis:
+    host: localhost
+    port: 6379
+    database: 0
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://db-gm1fi-kr.vpc-pub-cdb.ntruss.com:3306/aicfo?&zeroDateTimeBehavior=convertToNull&autoReconnect=true&noAccessToProcedureBodies=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Seoul
+    username: aicfo
+    password: J5d{(Lq],R,ncOW9q
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      max-lifetime: 26000
+    initialization-mode: always
+    initialize: true
+    sql-script-encoding: utf-8
+    continue-on-error: true
+
+# server
+server:
+  tomcat:
+    basedir: /tmp/labshigh/logs/aicfo-internal-api
+
+logging:
+  file: /tmp/labshigh/logs/aicfo-internal-api/common.log
+  pattern:
+    dateformat: yyyy-MM-dd HH:mm:ss.SSS,Asia/Seoul
+    rolling-file-name: /tmp/labshigh/logs/aicfo-internal-api/common.log.%d{yyyy-MM-dd}.%i.gz
+  level:
+    com:
+      labshigh:
+        aicfo: DEBUG
+
+ncloud:
+  access-key: 0EB353356DD94BC5AA69
+  secret-key: AE5FB443EC6C50B3F856FD084EF4FE19EA6FF7A9
+  object-storage:
+    end-point: kr.object.ncloudstorage.com
+    region: kr-standard
+    bucket: aicfo-s3
+  mail-storage:
+    end-point: https://mail.apigw.ntruss.com/api/v1/mails
+    email-verify-template-id: 8260
+    tokenExpirationTime: 1440 # 60*60*24
+    access-key: AKIA2VA4NRAZE7SZNKOP
+    secret-key: BMZzHdKLmlLhDWCgd9C0NT6rpoxb1V0mGeEGYwLsqZuy
+    sender: info@aicfo.vip
+    port: 2587
+  sms-storage:
+    end-point: https://sens.apigw.ntruss.com/sms/v2
+    service-id: ncp:sms:kr:278692135831:pbcninc_com
+    send-url: /services/${ncloud.sms-storage.service-id}/messages
+    from-phone-number: "01096361079"
+    expirationTime: 1440 # 60*60*24
+
+
+aws:
+  access-key: AKIA2VA4NRAZCXV6ZD6C
+  secret-key: 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
+  object-storage:
+    end-point: aicfo-bucket.s3.ap-southeast-1.amazonaws.com
+    region: ap-southeast-1
+    bucket: aicfo-bucket
+  ses:
+    end-point: email-smtp.ap-southeast-1.amazonaws.com
+    port: 2587
+    access-key: AKIA2VA4NRAZE7SZNKOP
+    secret-key: BMZzHdKLmlLhDWCgd9C0NT6rpoxb1V0mGeEGYwLsqZuy
+    sender: info@aicfo.vip
+aicfo:
+  wallet:
+    api: http://13.213.112.24:9000
+
+telegram:
+  access_token: 6253167396:AAH8iFREQ9QcJkRTZCZPxHL-FbaadILqacI
+  chat_id: -1001590574818
+  main_wallet_withdrawal_chat_id: -1001760450726
+  admin_tracking_chat_id: -1001581943398

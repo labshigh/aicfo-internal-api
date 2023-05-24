@@ -1,0 +1,491 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.labshigh.aicfo.internal.api.withdraw.mapper.WithdrawMapper">
+    <select id="count" resultType="int">
+        <![CDATA[
+        SELECT  count(*)
+        FROM  (
+            SELECT  CASE
+                    WHEN wr.request_quantity < 10 and wrc.uid is null
+                        THEN 'ing'
+                    WHEN wr.request_quantity < 10 and wrc.uid is not null and wrc.confirm_status = true and  wr.schedule_status IS NULL
+                        THEN 'ing'
+                    WHEN wr.request_quantity = 10 and wrc.uid is not null
+                        THEN 'ing'
+                    WHEN wr.request_quantity >= 10 and wrc.uid is null
+                        THEN 'ing'
+                    WHEN wr.request_quantity >= 10 and wrc.uid is not null and wrc.confirm_status = true and wrac.uid is null
+                        THEN 'ing'
+                    WHEN wr.request_quantity >= 10 and wrc.uid is not null and wrc.confirm_status = true and wrac.uid is not null and wrac.confirm_status = true and  wr.schedule_status IS NULL
+                        THEN 'ing'
+                    ELSE 'end'
+                    END AS withdrawStatus
+              FROM  withdraw_request wr
+        INNER JOIN  `member` m on wr.member_uid = m.uid
+   LEFT OUTER JOIN  withdraw_request_confirm wrc ON wr.uid = wrc.withdraw_request_uid
+   LEFT OUTER JOIN  withdraw_request_add_confirm wrac ON wr.uid = wrac.withdraw_request_uid
+             WHERE  1=1
+--                AND  wrc.uid IS NULL
+--                AND  wrac.uid IS NULL
+               AND  wr.created_at BETWEEN CONCAT(#{startAt}, ' 00:00:01') AND CONCAT(#{endAt}, ' 23:59:59')
+               AND  wr.schedule_status IS NULL
+              ) t1
+        WHERE  1=1
+        AND t1.withdrawStatus = 'ing'
+        ]]>
+    </select>
+
+  <select id="getWalletRequest" resultType="com.labshigh.aicfo.internal.api.withdraw.dao.WithdrawDao">
+        <![CDATA[
+    SELECT uid,
+           created_at,
+           updated_at,
+           deleted_flag,
+           used_flag,
+           member_uid,
+           tx_hash,
+           from_wallet,
+           to_wallet,
+           request_quantity,
+           status,
+           status_memo,
+           member_wallet_withdrawal_uid,
+           schedule_status,
+           schedule_status_memo,
+           transaction_id,
+           admin_verification_date,
+           manual_flag,
+           internal_wallet_flag
+    FROM   withdraw_request
+    WHERE deleted_flag = false
+        AND schedule_status <> 1
+        AND member_wallet_withdrawal_uid = #{memberWalletWithdrawalUid}
+    ]]>
+    </select>
+    <select id="applyList" resultType="com.labshigh.aicfo.internal.api.withdraw.dao.WithdrawDao">
+        <![CDATA[
+        SELECT  *
+          FROM  (
+            SELECT  m.email AS email
+                    ,IFNULL(wr.tx_hash, '-') AS txHash
+                    ,wr.from_wallet AS fromWallet
+                    ,wr.to_wallet AS toWallet
+                    ,(SELECT concat(wr.to_wallet, ' [', IFNULL(nickname, ''), IFNULL(concat(' ', email), ''), ']') from member where uid = wr.member_uid) AS toWallet2
+                    ,(SELECT IFNULL(nickname, '') FROM member WHERE uid = wr.member_uid) AS memberNickname2
+                    ,(SELECT IFNULL(email, '') FROM member WHERE uid = wr.member_uid) AS memberEmail2
+                    ,(
+                        SELECT sub_m.nickname
+                        FROM member sub_m
+                                 left join  member_wallet sub_mw on sub_m.uid = sub_mw.member_uid
+                        WHERE sub_mw.address = wr.to_wallet
+                    ) as memberNickname
+                            ,(
+                        SELECT sub_m.email
+                        FROM member sub_m
+                                 left join  member_wallet sub_mw on sub_m.uid = sub_mw.member_uid
+                        WHERE sub_mw.address = wr.to_wallet
+                    ) as memberEmail
+                    ,wr.request_quantity AS requestQuantity
+                    ,(SELECT last * wr.request_quantity FROM exchange_virtual WHERE name='ETH-KRW' ) AS krwPrice
+                    ,wr.created_at AS createdAt
+                    ,IFNULL(wrc.confirm_status, FALSE) AS confirmStatus
+                    ,IFNULL(wrac.confirm_status, FALSE) AS addConfirmStatus
+                    ,wr.uid
+                    ,CASE
+                         WHEN wrc.confirm_status IS NULL
+                             THEN 'RQ'
+                         ELSE 'CHK'
+                    END AS confirmStatusCode
+                    ,CASE
+                         WHEN wrac.confirm_status IS NULL
+                             THEN 'RQ'
+                         ELSE 'CHK'
+                    END AS addConfirmStatusCode
+                    ,
+                    CASE
+                        WHEN wr.request_quantity < 10 and wrc.uid is null
+                            THEN 'ing'
+                        WHEN wr.request_quantity < 10 and wrc.uid is not null and wrc.confirm_status = true and  wr.schedule_status IS NULL
+                            THEN 'ing'
+                        WHEN wr.request_quantity = 10 and wrc.uid is not null
+                            THEN 'ing'
+                        WHEN wr.request_quantity >= 10 and wrc.uid is null
+                            THEN 'ing'
+                        WHEN wr.request_quantity >= 10 and wrc.uid is not null and wrc.confirm_status = true and wrac.uid is null
+                            THEN 'ing'
+                        WHEN wr.request_quantity >= 10 and wrc.uid is not null and wrc.confirm_status = true and wrac.uid is not null and wrac.confirm_status = true and  wr.schedule_status IS NULL
+                            THEN 'ing'
+                        ELSE 'end'
+                    END AS withdrawStatus
+                    ,wr.transaction_id AS transactionId
+                    ,IFNULL((select adm.name from admin adm where adm.uid = wr.admin_uid), '-') AS adminName
+              FROM  withdraw_request wr
+        INNER JOIN  `member` m on wr.member_uid = m.uid
+   LEFT OUTER JOIN  withdraw_request_confirm wrc ON wr.uid = wrc.withdraw_request_uid
+   LEFT OUTER JOIN  withdraw_request_add_confirm wrac ON wr.uid = wrac.withdraw_request_uid
+             WHERE  1=1
+--                AND  wrc.uid IS NULL
+--                AND  wrac.uid IS NULL
+               AND  wr.created_at BETWEEN CONCAT(#{startAt}, ' 00:00:01') AND CONCAT(#{endAt}, ' 23:59:59')
+               AND  wr.schedule_status IS NULL
+              ) t1
+         WHERE  1 = 1
+           AND  t1.withdrawStatus = 'ing'
+      ORDER BY  t1.uid DESC
+         LIMIT  #{offsetAndRowCount.offset}, #{offsetAndRowCount.rowCount}
+        ]]>
+    </select>
+    <select id="rejectTypeList" resultType="com.labshigh.aicfo.internal.api.withdraw.dao.WithdrawDao">
+        SELECT  uid AS rejectUid
+                ,name_kr AS rejectName
+          FROM  common_code
+         WHERE  parent_common_code_uid  = 29
+      ORDER BY  sort
+    </select>
+
+    <select id="completeCount" resultType="int">
+        <![CDATA[
+        SELECT  count(*)
+          FROM  (
+            SELECT  CASE
+                    WHEN wrc.confirm_status = 1 AND wr.request_quantity < 10
+                        THEN wrc.created_at
+                    WHEN wrc.confirm_status = 1 AND wr.request_quantity >= 10 AND wrac.confirm_status = 1
+                        THEN wrac.created_at
+                    ELSE ''
+                    END AS confirmedDate
+              FROM  withdraw_request wr
+        INNER JOIN  `member` m ON wr.member_uid = m.uid
+   LEFT OUTER JOIN  withdraw_request_confirm wrc ON wr.uid = wrc.withdraw_request_uid
+   LEFT OUTER JOIN  withdraw_request_add_confirm wrac ON wr.uid = wrac.withdraw_request_uid
+             WHERE  1=1
+               AND  ifnull(wr.schedule_status, FALSE) = TRUE
+            ) t1
+         WHERE  1=1
+           AND  t1.confirmedDate BETWEEN CONCAT(#{startAt}, ' 00:00:01') AND CONCAT(#{endAt}, ' 23:59:59')
+        ]]>
+    </select>
+    <select id="completeList" resultType="com.labshigh.aicfo.internal.api.withdraw.dao.WithdrawDao">
+        <![CDATA[
+        SELECT  t1.*
+          FROM  (
+                  SELECT  m.email AS email
+                         ,wr.tx_hash AS txHash
+                         ,wr.from_wallet AS fromWallet
+                         ,wr.to_wallet AS toWallet
+                         ,(select concat(wr.to_wallet, ' [', IFNULL(nickname, ''), IFNULL(concat(' ', email), ''), ']') from member where uid = wr.member_uid) AS toWallet2
+                         ,(select IFNULL(nickname, '') from member where uid = wr.member_uid) AS memberNickname2
+                         ,(select IFNULL(email, '') from member where uid = wr.member_uid) AS memberEmail2
+                         ,(
+                              SELECT sub_m.nickname
+                              FROM member sub_m
+                                       left join  member_wallet sub_mw on sub_m.uid = sub_mw.member_uid
+                              WHERE sub_mw.address = wr.to_wallet
+                          ) as memberNickname
+                                 ,(
+                              SELECT sub_m.email
+                              FROM member sub_m
+                                       left join  member_wallet sub_mw on sub_m.uid = sub_mw.member_uid
+                              WHERE sub_mw.address = wr.to_wallet
+                          ) as memberEmail
+                         ,wr.request_quantity AS requestQuantity
+                         ,wr.created_at AS createdAt
+                         ,IFNULL(wrc.confirm_status, FALSE) AS confirmStatus
+                         ,IFNULL(wrac.confirm_status, FALSE) AS addConfirmStatus
+                         ,wr.uid
+                         ,wrc.created_at AS confirmDate
+                         ,wrac.created_at AS addConfirmDate
+                         ,CASE
+                              WHEN wrc.confirm_status = 1 AND wr.request_quantity < 10
+                                  THEN wrc.created_at
+                              WHEN wrc.confirm_status = 1 AND wr.request_quantity >= 10 AND wrac.confirm_status = 1
+                                  THEN wrac.created_at
+                              ELSE ''
+                         END AS confirmedDate
+                         ,IFNULL((select adm.name from admin adm where adm.uid = wr.admin_uid), '-') AS adminName
+                   FROM  withdraw_request wr
+             INNER JOIN  `member` m ON wr.member_uid = m.uid
+        LEFT OUTER JOIN  withdraw_request_confirm wrc ON wr.uid = wrc.withdraw_request_uid
+        LEFT OUTER JOIN  withdraw_request_add_confirm wrac ON wr.uid = wrac.withdraw_request_uid
+                  WHERE  1=1
+                    AND  ifnull(wr.schedule_status, false) = TRUE
+               ) t1
+         WHERE  1=1
+           AND  t1.confirmedDate BETWEEN CONCAT(#{startAt}, ' 00:00:01') AND CONCAT(#{endAt}, ' 23:59:59')
+      ORDER BY  t1.uid DESC
+         LIMIT  #{offsetAndRowCount.offset}, #{offsetAndRowCount.rowCount}
+        ]]>
+    </select>
+
+    <select id="rejectCount" resultType="int">
+        <![CDATA[
+        SELECT  COUNT(*)
+          FROM  (
+                  SELECT  CASE
+                          WHEN wrc.confirm_status = 0
+                              THEN wrc.created_at
+                          ELSE wrac.created_at
+                          END AS rejectDate
+                    FROM  withdraw_request wr
+              INNER JOIN  `member` m ON wr.member_uid = m.uid
+         LEFT OUTER JOIN  withdraw_request_confirm wrc ON wr.uid = wrc.withdraw_request_uid
+         LEFT OUTER JOIN  withdraw_request_add_confirm wrac ON wr.uid = wrac.withdraw_request_uid
+                   WHERE  1=1
+                     AND  (IFNULL(wrc.confirm_status, FALSE) + IFNULL(wrac.confirm_status, FALSE)) <= 1
+              ) t1
+         WHERE  t1.rejectDate BETWEEN CONCAT(#{startAt}, ' 00:00:01') AND CONCAT(#{endAt}, ' 23:59:59')
+        ]]>
+    </select>
+    <select id="rejectList" resultType="com.labshigh.aicfo.internal.api.withdraw.dao.WithdrawDao">
+        <![CDATA[
+        select t1.*
+        from (
+        SELECT  m.email AS email
+             ,wr.tx_hash AS txHash
+             ,wr.from_wallet AS fromWallet
+             ,wr.to_wallet AS toWallet
+             ,(select concat(wr.to_wallet, ' [', IFNULL(nickname, ''), IFNULL(concat(' ', email), ''), ']') from member where uid = wr.member_uid) AS toWallet2
+             ,(select IFNULL(nickname, '') from member where uid = wr.member_uid) AS memberNickname2
+             ,(select IFNULL(email, '') from member where uid = wr.member_uid) AS memberEmail2
+             ,(
+                SELECT sub_m.nickname
+                FROM member sub_m
+                         left join  member_wallet sub_mw on sub_m.uid = sub_mw.member_uid
+                WHERE sub_mw.address = wr.to_wallet
+             ) as memberNickname
+                 ,(
+                SELECT sub_m.email
+                FROM member sub_m
+                         left join  member_wallet sub_mw on sub_m.uid = sub_mw.member_uid
+                WHERE sub_mw.address = wr.to_wallet
+             ) as memberEmail
+             ,wr.request_quantity AS requestQuantity
+             ,wr.created_at AS createdAt
+             ,IFNULL(wrc.confirm_status, FALSE) AS confirmStatus
+             ,IFNULL(wrac.confirm_status, FALSE) AS addConfirmStatus
+             ,wr.uid
+             ,wrc.created_at AS confirmDate
+             ,wrac.created_at AS addConfirmDate
+             ,CASE
+                  WHEN wrc.confirm_status = 0
+                      THEN '1차'
+                  ELSE '2차'
+              END AS rejectSequence
+             ,CASE
+                  WHEN wrc.confirm_status = 0
+                      THEN wrc.created_at
+                  ELSE wrac.created_at
+              END AS rejectDate
+             ,CASE
+                  WHEN wrc.confirm_status = 0
+                      THEN wrc.reject_memo
+                  ELSE wrac.reject_memo
+              END AS rejectMemo
+             ,CASE
+                  WHEN wrc.confirm_status = 0
+                      THEN wrc.reject_uid
+                  ELSE wrac.reject_uid
+              END AS rejectUid
+             ,IFNULL((select adm.name from admin adm where adm.uid = wr.admin_uid), '-') AS adminName
+        FROM  withdraw_request wr
+                  INNER JOIN  `member` m on wr.member_uid = m.uid
+                  LEFT OUTER JOIN  withdraw_request_confirm wrc ON wr.uid = wrc.withdraw_request_uid
+                  LEFT OUTER JOIN  withdraw_request_add_confirm wrac ON wr.uid = wrac.withdraw_request_uid
+        WHERE  1=1
+            AND  (IFNULL(wrc.confirm_status, FALSE) + IFNULL(wrac.confirm_status, FALSE)) <= 1
+             )t1
+        WHERE  1=1
+          AND  t1.rejectDate BETWEEN CONCAT(#{startAt}, ' 00:00:01') AND CONCAT(#{endAt}, ' 23:59:59')
+        ORDER BY  t1.uid DESC
+            LIMIT  #{offsetAndRowCount.offset}, #{offsetAndRowCount.rowCount}
+       ]]>
+    </select>
+
+    <!-- 1차 승인 거절 전 기등록된 정보 있는지 체크 -->
+    <select id="applyConfirmCount" resultType="int">
+        select count(*)
+        from withdraw_request_confirm wrc
+        where withdraw_request_uid = #{withdrawRequestUid}
+    </select>
+    <!--
+    1차 승인 / 거절 등록
+    -->
+    <insert id="applyConfirmInsert" useGeneratedKeys="true" keyProperty="uid">
+        INSERT INTO withdraw_request_confirm
+        (
+            withdraw_request_uid
+            ,confirm_status
+            ,reject_uid
+            ,reject_memo
+            ,admin_uid
+        )
+        VALUES
+            (
+                #{withdrawRequestUid}
+                ,#{confirmStatus}
+                ,#{rejectUid}
+                ,#{rejectMemo}
+                ,#{adminUid}
+            )
+    </insert>
+
+    <!-- 2차 승인 거절 전 기등록된 정보 있는지 체크 -->
+    <select id="applyAddConfirmCount" resultType="int">
+        select count(*)
+        from withdraw_request_add_confirm wrac
+        where withdraw_request_uid = #{withdrawRequestUid}
+    </select>
+    <!--
+    2차 승인 / 거절 등록
+    -->
+    <insert id="applyAddConfirmRequest" useGeneratedKeys="true" keyProperty="uid">
+        INSERT INTO withdraw_request_add_confirm
+        (
+            withdraw_request_uid
+            ,confirm_status
+            ,reject_uid
+            ,reject_memo
+        ,admin_uid
+        )
+        VALUES
+            (
+                #{withdrawRequestUid}
+                ,#{confirmStatus}
+                ,#{rejectUid}
+                ,#{rejectMemo}
+                ,#{adminUid}
+            )
+    </insert>
+
+    <!-- 충금신청등록 -->
+    <insert id="insertWithdrawalRequest" useGeneratedKeys="true" keyProperty="uid">
+        INSERT INTO withdraw_request
+        (
+            member_uid
+            ,from_wallet
+            ,to_wallet
+            ,request_quantity
+            ,member_wallet_withdrawal_uid
+            ,internal_wallet_flag
+        )
+        VALUES
+            (
+                #{memberUid}
+                ,(select address from member_wallet where uid = #{walletId})
+                ,(select address FROM member_wallet_withdrawal WHERE uid = #{memberWalletWithdrawalUid})
+                ,#{requestQuantity}
+                ,#{memberWalletWithdrawalUid}
+                ,#{internalFlag}
+            )
+    </insert>
+
+    <!-- 충금 history 제거 상태 변경 -->
+    <update id="updateWithdrawalRequestHistory">
+        UPDATE  withdraw_request
+        SET  deleted_flag = 1
+        WHERE  uid = #{uid}
+    </update>
+
+    <select id="selectMemberAddressCount" resultType="int">
+        SELECT  count(*)
+          FROM  member_wallet_withdrawal
+         WHERE  uid = #{memberWalletWithdrawalUid}
+    </select>
+
+
+    <update id="updateWithdrawalStatus">
+        UPDATE  withdraw_request
+           SET  status = #{confirmStatus}
+                ,status_memo = #{rejectMemo}
+                ,admin_verification_date = now()
+                ,admin_uid = #{adminUid}
+         WHERE  uid = #{withdrawRequestUid}
+    </update>
+
+    <select id="selectTxHash" resultType="String">
+        SELECT  tx_hash
+          FROM  withdraw_request
+         WHERE  uid = #{withdrawRequestUid}
+    </select>
+
+    <select id="withdrawalHistoryCheck" resultType="int">
+        SELECT  count(*)
+          FROM  (
+                 SELECT  CASE
+                             WHEN wr.status is null
+                                 THEN 'ing'
+                             WHEN wr.status = false and wr.deleted_flag = false
+                                 THEN 'ing'
+                             WHEN wr.status = false and wr.deleted_flag = true
+                                 THEN 'end'
+                         ELSE 'end'
+                        END AS withdrawStatus
+                 FROM  withdraw_request wr
+                WHERE  wr.member_uid  = #{memberUid}
+                  AND  wr.to_wallet = (select address FROM member_wallet_withdrawal WHERE uid = #{memberWalletWithdrawalUid})
+               ) t1
+        WHERE  t1.withdrawStatus = 'ing'
+    </select>
+
+    <select id="selectToMemberWallet" resultType="com.labshigh.aicfo.internal.api.withdraw.dao.WithdrawDao">
+        select *
+             ,(select internal_wallet_flag from member_wallet_withdrawal mww where address = t1.toWallet ) as internalFlag
+        from (
+                 select  user_id AS userId
+                         ,address AS toWallet
+                         ,(
+                             select from_wallet
+                             from withdraw_request
+                             where uid = #{uid}
+                         ) as fromWallet
+                      ,(
+                             select internal_wallet_flag
+                             FROM member_wallet_withdrawal
+                             WHERE uid = #{memberWalletWithdrawalUid}
+                         ) AS internalFlag
+                 FROM member_wallet mw
+                 WHERE mw.address  =
+                       (
+                           SELECT wr.to_wallet FROM withdraw_request wr WHERE wr.uid = #{uid}
+                       )
+             ) t1
+
+    </select>
+
+    <select id="getToWalletInfo" resultType="com.labshigh.aicfo.internal.api.withdraw.dao.WithdrawDao">
+        select wr.to_wallet as toWallet, mww.internal_wallet_flag as internalFlag
+        from withdraw_request wr
+                 left join member_wallet_withdrawal mww on wr.member_wallet_withdrawal_uid = mww.uid
+        where wr.uid = #{uid}
+    </select>
+
+    <update id="updateTransactionId">
+        UPDATE  withdraw_request
+           SET  transaction_id = #{transactionId}
+         WHERE  uid = #{uid}
+    </update>
+
+    <select id="selectWalletTransactionInfo" resultType="com.labshigh.aicfo.internal.api.withdraw.dao.WithdrawDao">
+        SELECT  wr.from_wallet AS fromWallet
+                ,wr.to_wallet AS toWallet
+                ,wr.member_uid AS memberUid
+                ,wr.request_quantity AS requestQuantity
+                ,(SELECT mw.user_id FROM member_wallet mw WHERE mw.address = wr.to_wallet) AS toUserId
+                ,mww.internal_wallet_flag AS internalFlag
+                ,wr.transaction_id AS transactionId
+                ,(select user_id from member_wallet mw where mw.address = wr.from_wallet) AS userId
+          FROM  withdraw_request wr
+     LEFT JOIN  member_wallet_withdrawal mww ON wr.member_wallet_withdrawal_uid = mww.uid
+         WHERE  wr.uid = #{WithdrawRequestUid}
+      ORDER BY  wr.uid
+        limit 0,1
+    </select>
+
+    <select id="getWithdrawalAddress" resultType="String">
+        select address
+        from member_wallet_withdrawal mww
+        where uid = #{memberWalletWithdrawalUid}
+    </select>
+
+</mapper>

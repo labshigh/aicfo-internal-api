@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.labshigh.aicfo.internal.api.staticData.mapper.StaticDataMapper">
+
+  <select id="detail" resultType="com.labshigh.aicfo.internal.api.staticData.dao.StaticDataDao">
+    SELECT uid,
+           created_at,
+           updated_at,
+           deleted_flag,
+           used_flag,
+           name,
+           data_json
+    FROM  static_data
+    WHERE deleted_flag = false AND
+          used_flag = true AND
+          uid = #{staticDataUid}
+  </select>
+
+</mapper>

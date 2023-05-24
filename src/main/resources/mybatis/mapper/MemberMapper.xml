@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.labshigh.aicfo.internal.api.member.mapper.MemberMapper">
+  <insert id="insertByEmail" parameterType="com.labshigh.aicfo.internal.api.member.dao.MemberDao" useGeneratedKeys="true" keyProperty="uid">
+    INSERT INTO member (email,password,referrer) VALUES (#{email},#{password},#{referrer})
+  </insert>
+
+  <insert id="insertByMetamask" parameterType="com.labshigh.aicfo.internal.api.member.dao.MemberDao" useGeneratedKeys="true" keyProperty="uid">
+    INSERT INTO member (wallet_address) VALUES (#{walletAddress})
+  </insert>
+
+  <select id="count" resultType="int">
+    SELECT
+      count(uid)
+    FROM member m
+    WHERE deleted_flag = false AND
+    <choose>
+      <when test="searchKey != null and searchKey == 'email'">
+        email LIKE concat('%', #{searchValue}, '%')
+      </when>
+      <otherwise>
+        1 = 1
+      </otherwise>
+    </choose>
+  </select>
+  <select id="list" resultType="com.labshigh.aicfo.internal.api.member.dao.MemberDao">
+    SELECT
+      uid,
+      created_at,
+      updated_at,
+      deleted_flag,
+      used_flag,
+      wallet_address,
+      nickname,
+      email,
+      email_verified_flag,
+      phone_number,
+      phone_verified_flag,
+      email_newsletter_flag,
+      IFNULL( (SELECT mt.used_flag as otp_flag FROM aicfo.member_totp mt WHERE mt.member_uid=m.uid AND mt.deleted_flag = 0),0) as otp_flag,
+      national_code,
+      referrer,
+      referrer_code,
+      deleted_flag,
+      jumin_file_id,
+      code_file_id,
+      jumin_flag,
+      code_flag,
+      password,
+      code,
+      code_date,
+      approve_type,
+      approve_id,
+      approve_date,
+      m_eth,
+      migrated_flag,
+      wallet_id
+    FROM member m
+    WHERE deleted_flag = false AND
+    <choose>
+      <when test="searchKey != null and searchKey == 'email'">
+        email LIKE concat('%', #{searchValue}, '%')
+      </when>
+      <otherwise>
+        1 = 1
+      </otherwise>
+    </choose>
+    ORDER BY created_at DESC
+    LIMIT #{offsetAndRowCount.offset}, #{offsetAndRowCount.rowCount}
+  </select>
+  <select id="get" resultType="com.labshigh.aicfo.internal.api.member.dao.MemberDao">
+    SELECT uid,
+           created_at,
+           updated_at,
+           deleted_flag,
+           used_flag,
+           wallet_address,
+           nickname,
+           email,
+           email_verified_flag,
+           phone_number,
+           phone_verified_flag,
+           email_newsletter_flag,
+           IFNULL( (SELECT mt.used_flag as otp_flag FROM aicfo.member_totp mt WHERE mt.member_uid=m.uid AND mt.deleted_flag = 0),0) as otp_flag,
+           national_code,
+           referrer,
+           referrer_code,
+           deleted_flag,
+           jumin_file_id,
+           code_file_id,
+           jumin_flag,
+           code_flag,
+           password,
+           code,
+           code_date,
+           approve_type,
+           approve_id,
+           approve_date,
+           m_eth,
+           migrated_flag,
+           wallet_id,
+           imsi_password_flag,
+           cryptobro_id
+    FROM member m
+    WHERE deleted_flag = false AND
+    <choose>
+      <when test="walletAddress != null">
+          wallet_address = #{walletAddress}
+      </when>
+      <when test="uid != null and uid != 0">
+        uid = #{uid}
+      </when>
+      <when test="email != null">
+        email = #{email}
+      </when>
+      <when test="referrer != null">
+        referrer_code = #{referrer}
+      </when>
+      <when test="cryptobroId != null">
+        cryptobro_id = #{cryptobroId}
+      </when>
+
+      <otherwise>
+        uid = #{uid}
+      </otherwise>
+    </choose>
+  </select>
+
+  <select id="getByEmail" resultType="string">
+    SELECT
+    email
+    FROM member m
+    WHERE deleted_flag = false AND
+    email = #{email}
+  </select>
+
+  <select id="getByNickname" resultType="string">
+    SELECT
+      nickname
+    FROM member m
+    WHERE deleted_flag = false AND
+      nickname = #{nickname}
+  </select>
+
+  <update id="updatePassword">
+    UPDATE member SET password = #{password}, imsi_password_flag = #{imsiPasswordFlag}
+    WHERE deleted_flag = false AND
+      uid = #{uid}
+  </update>
+
+  <update id="updateNickname">
+    UPDATE member SET nickname = #{nickname}
+    WHERE deleted_flag = false AND
+      uid = #{uid}
+  </update>
+
+  <update id="updateReferrer">
+    UPDATE member SET referrer = #{referrer}
+    WHERE deleted_flag = false AND
+      uid = #{uid}
+  </update>
+
+  <update id="updateReferrerCode">
+    UPDATE member SET referrer_code = #{referrerCode}
+    WHERE deleted_flag = false AND
+      uid = #{uid}
+  </update>
+  <update id="updateEmail">
+    UPDATE member
+    SET email = #{email} , email_verified_flag = #{emailVerifiedFlag}, email_newsletter_flag = #{emailNewsletterFlag}
+    WHERE deleted_flag = false AND
+        uid = #{uid}
+  </update>
+
+  <update id="updatePhoneNumber">
+    UPDATE member
+    SET phone_number = #{phoneNumber} , national_code = #{nationalCode} , phone_verified_flag = #{phoneVerifiedFlag}
+    WHERE deleted_flag = false AND
+      used_flag = true AND
+      uid = #{uid}
+  </update>
+
+  <update id="updateEtcInfo">
+    UPDATE member
+    SET phone_verified_flag = #{phoneVerifiedFlag},
+        national_code = #{nationalCode},
+        phone_number = #{phoneNumber},
+        email = #{email},
+        email_verified_flag = #{emailVerifiedFlag},
+        email_newsletter_flag = #{emailNewsletterFlag}
+    WHERE uid = #{uid}
+  </update>
+
+  <update id="updateJuminFileId">
+    UPDATE member
+    SET jumin_file_id = #{juminFileId},
+        jumin_flag = 1
+    WHERE uid = #{uid}
+  </update>
+
+  <update id="updateCodeFileId">
+    UPDATE member
+    SET code_file_id = #{codeFileId},
+        code_flag = 1
+    WHERE uid = #{uid}
+  </update>
+
+  <update id="updateAuth">
+    UPDATE member
+    SET
+        used_flag = #{usedFlag},
+        approve_type = #{approveType},
+        approve_id = #{approveId},
+        email_verified_flag = 1,
+        approve_date = now()
+    WHERE uid = #{uid}
+  </update>
+
+  <update id="updateCode">
+    UPDATE member
+    SET code = #{code},
+        code_date = now()
+    WHERE email = #{email}
+  </update>
+
+  <update id="updateWallet">
+    UPDATE member
+    SET referrer_code = #{referrerCode},
+        wallet_id = #{walletId}
+    WHERE email = #{email}
+  </update>
+  <update id="updateLoginDt">
+    UPDATE member
+    SET login_dt = now()
+    WHERE uid = #{uid}
+  </update>
+
+  <!-- 이관 체크용 -->
+  <select id="migCount" resultType="int">
+      SELECT
+      count(uid)
+      FROM member m
+      WHERE migrated_flag = true AND
+      <choose>
+          <when test="searchKey != null and searchKey == 'email'">
+              email LIKE concat('%', #{searchValue}, '%')
+          </when>
+          <otherwise>
+              1 = 1
+          </otherwise>
+      </choose>
+  </select>
+    <select id="migList" resultType="com.labshigh.aicfo.internal.api.member.dao.MemberDao">
+        SELECT
+        uid,
+        created_at,
+        updated_at,
+        deleted_flag,
+        used_flag,
+        wallet_address,
+        IFNULL(nickname, '') AS nickname,
+        IFNULL(email, '') AS email,
+        email_verified_flag,
+        phone_number,
+        phone_verified_flag,
+        migrated_flag,
+        IFNULL(cryptobro_id, '') AS cryptobroId,
+        IFNULL(mig_balance, '') AS migBalance
+        FROM member m
+        WHERE migrated_flag = true AND
+        <choose>
+            <when test="searchKey != null and searchKey == 'email'">
+                email LIKE concat('%', #{searchValue}, '%')
+            </when>
+            <otherwise>
+                1 = 1
+            </otherwise>
+        </choose>
+        ORDER BY created_at DESC
+        LIMIT #{offsetAndRowCount.offset}, #{offsetAndRowCount.rowCount}
+    </select>
+
+
+</mapper>

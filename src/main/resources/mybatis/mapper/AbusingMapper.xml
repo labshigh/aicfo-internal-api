@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.labshigh.aicfo.internal.api.abusing.mapper.AbusingMapper">
+    <select id="count" resultType="int">
+        SELECT COUNT(*)
+        FROM (
+            SELECT COUNT(*)
+            FROM member_abusing ma
+            INNER JOIN member m ON ma.member_uid = m.uid
+            WHERE  m.used_flag = false
+           <if test="searchKey != null and searchKey == 'walletAddress'">AND m. wallet_address = ''
+                AND  m.wallet_address LIKE CONCAT('%', #{searchValue}, '%')
+           </if>
+           <if test="searchKey != null and searchKey == 'email'">
+               AND  m.email LIKE CONCAT('%', #{searchValue}, '%')
+           </if>
+           <if test="searchKey != null and searchKey == 'nickname'">
+               AND  m.nickname LIKE CONCAT('%', #{searchValue}, '%')
+           </if>
+          GROUP BY  ma.member_uid
+        ) t
+    </select>
+    <select id="list" resultType="com.labshigh.aicfo.internal.api.abusing.dao.AbusingDao">
+        SELECT  m.email
+                ,IFNULL(m.nickname, '') AS nickname
+                ,IFNULL(m.wallet_address, '') AS walletAddress
+                ,(select used_flag from member_abusing where uid = max(ma.uid)) as used_Flag
+                ,max(ma.created_at) as createdAt
+                ,(
+                    SELECT  count(*)
+                      FROM  member_abusing
+                     WHERE  used_flag = false
+                       AND  member_uid = m.uid
+                ) AS abusingCnt
+                ,ma.member_uid
+                ,(select name from admin where uid = max(ma.admin_uid)) as adminName
+          FROM  member_abusing ma
+    INNER JOIN  member m on ma.member_uid  = m.uid
+         WHERE  m.used_flag = false
+        <if test="searchKey != null and searchKey == 'walletAddress'">
+           AND  m.wallet_address LIKE CONCAT('%', #{searchValue}, '%')
+        </if>
+       <if test="searchKey != null and searchKey == 'email'">
+           AND  m.email LIKE CONCAT('%', #{searchValue}, '%')
+       </if>
+       <if test="searchKey != null and searchKey == 'nickname'">
+           AND  m.nickname LIKE CONCAT('%', #{searchValue}, '%')
+       </if>
+      GROUP BY ma.member_uid
+      ORDER BY ma.member_uid DESC
+        LIMIT  #{offsetAndRowCount.offset}, #{offsetAndRowCount.rowCount}
+    </select>
+
+    <!--
+    어뷰징 메뉴 각 사용자별 메모 목록
+    -->
+    <select id="abusingMemoList" resultType="com.labshigh.aicfo.internal.api.abusing.dao.AbusingDao">
+        SELECT  memo
+                ,used_flag
+                ,created_at
+          FROM  member_abusing
+         WHERE  1=1
+           AND  member_uid = #{uid}
+      ORDER BY  uid DESC
+    </select>
+
+    <insert id="insert">
+        insert INTO member_abusing
+            (
+             deleted_flag
+             ,used_flag
+             ,member_uid
+             ,memo
+             ,admin_uid
+             )
+        VALUES
+            (
+             true
+             ,#{usedFlag}
+             ,#{memberUid}
+             ,#{memo}
+             ,#{adminUid}
+             )
+    </insert>
+
+    <update id="updateMember">
+        UPDATE  member
+           SET  used_flag = #{usedFlag}
+        <if test="usedFlag == true">
+           ,approve_type = 'approval'
+        </if>
+        <if test="usedFlag == false">
+            ,approve_type = 'abuser'
+        </if>
+         WHERE  uid = #{memberUid}
+    </update>
+
+    <select id="detailMemberCount" resultType="int">
+        SELECT  count(*)
+        FROM  member m
+        WHERE  m.used_flag = true
+        <if test="searchKey != null and searchKey == 'walletAddress'">
+            AND  m.wallet_address LIKE CONCAT('%', #{searchValue}, '%')
+        </if>
+        <if test="searchKey != null and searchKey == 'email'">
+            AND  m.email LIKE CONCAT('%', #{searchValue}, '%')
+        </if>
+        <if test="searchKey != null and searchKey == 'nickname'">
+            AND  m.nickname LIKE CONCAT('%', #{searchValue}, '%')
+        </if>
+    </select>
+
+    <select id="detailMember" resultType="com.labshigh.aicfo.internal.api.abusing.dao.AbusingDao">
+        SELECT  uid
+                ,IFNULL(wallet_address, '') AS walletAddress
+                ,IFNULL(email, '') AS email
+                ,IFNULL(nickname, '') AS nickname
+          FROM  member m
+         WHERE  m.used_flag = true
+        <if test="searchKey != null and searchKey == 'walletAddress'">
+           AND  m.wallet_address LIKE CONCAT('%', #{searchValue}, '%')
+        </if>
+        <if test="searchKey != null and searchKey == 'email'">
+           AND  m.email LIKE CONCAT('%', #{searchValue}, '%')
+        </if>
+        <if test="searchKey != null and searchKey == 'nickname'">
+           AND  m.nickname LIKE CONCAT('%', #{searchValue}, '%')
+        </if>
+    </select>
+
+</mapper>

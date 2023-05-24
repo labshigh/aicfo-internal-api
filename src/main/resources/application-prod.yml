@@ -1,0 +1,69 @@
+app:
+  profile: prod
+
+spring:
+  redis:
+    host: redisc-gm24p.vpc-cdb.ntruss.com
+    port: 6379
+    database: 0
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://db-gm1fi-kr.vpc-pub-cdb.ntruss.com:3306/aicfo?&zeroDateTimeBehavior=convertToNull&autoReconnect=true&noAccessToProcedureBodies=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Seoul
+    username: aicfo
+    password: J5d{(Lq],R,ncOW9q
+    type: com.zaxxer.hikari.HikariDataSource
+    hikari:
+      max-lifetime: 26000
+    initialization-mode: always
+    initialize: true
+    sql-script-encoding: utf-8
+    continue-on-error: true
+
+# server
+server:
+  tomcat:
+    basedir: /home/labshigh/logs/aicfo-internal-api
+
+logging:
+  file: /home/labshigh/logs/aicfo-internal-api/common.log
+  pattern:
+    dateformat: yyyy-MM-dd HH:mm:ss.SSS,Asia/Seoul
+    rolling-file-name: /home/labshigh/logs/aicfo-internal-api/common.log.%d{yyyy-MM-dd}.%i.gz
+  level:
+    root: DEBUG
+    com:
+      labshigh:
+        aicfo: DEBUG
+
+ncloud:
+  access-key: 0EB353356DD94BC5AA69
+  secret-key: AE5FB443EC6C50B3F856FD084EF4FE19EA6FF7A9
+  object-storage:
+    end-point: kr.object.ncloudstorage.com
+    region: kr-standard
+    bucket: aicfo-s3
+  mail-storage:
+    end-point: https://mail.apigw.ntruss.com/api/v1/mails
+    email-verify-template-id: 8260
+    tokenExpirationTime: 1440 # 60*60*24
+    port: 2587
+    access-key: AKIA2VA4NRAZE7SZNKOP
+    secret-key: BMZzHdKLmlLhDWCgd9C0NT6rpoxb1V0mGeEGYwLsqZuy
+    sender: info@aicfo.vip
+  sms-storage:
+    end-point: https://sens.apigw.ntruss.com/sms/v2
+    service-id: ncp:sms:kr:278692135831:pbcninc_com
+    send-url: /services/${ncloud.sms-storage.service-id}/messages
+    from-phone-number: "01096361079"
+    expirationTime: 1440 # 60*60*24
+
+
+aicfo:
+  wallet:
+    api: http://10.0.0.141:9000
+
+telegram:
+  access_token: 6253167396:AAH8iFREQ9QcJkRTZCZPxHL-FbaadILqacI
+  chat_id: -1001590574818
+  main_wallet_withdrawal_chat_id: -1001760450726
+  admin_tracking_chat_id: -1001581943398

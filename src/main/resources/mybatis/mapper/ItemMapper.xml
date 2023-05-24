@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.labshigh.aicfo.internal.api.item.mapper.ItemMapper">
+
+  <insert id="insert" keyProperty="uid" parameterType="com.labshigh.aicfo.internal.api.item.dao.ItemDao" useGeneratedKeys="true">
+    INSERT INTO item (vip_flag, round, close_round, interest, start_at, end_at, request_end_at, withdrawal_request_end_at, min_price, auto_item_uid, item_kind)
+    VALUES(#{vipFlag}, #{round}, #{closeRound}, #{interest}, #{startAt}, #{endAt}, #{requestEndAt}, #{withdrawalRequestEndAt}, #{minPrice}, #{autoItemUid}, #{itemKind})
+  </insert>
+
+  <insert id="insert_bak" keyProperty="uid" parameterType="com.labshigh.aicfo.internal.api.item.dao.ItemDao" useGeneratedKeys="true">
+    INSERT INTO item (vip_flag, round, close_round, interest, start_at, end_at, request_end_at,min_price)
+    VALUES(#{vipFlag}, #{round}, #{closeRound}, #{interest}, #{startAt}, #{endAt}, #{requestEndAt}, #{minPrice})
+  </insert>
+
+  <select id="selectBasicItem" resultType="com.labshigh.aicfo.internal.api.item.dao.BasicItemDao">
+    SELECT day,
+           close_round,
+           interest,
+           min_price,
+           staking_request_day
+    FROM basic_item
+  </select>
+
+  <update id="updateItem">
+    UPDATE item
+    SET    start_at = #{startAt},
+           request_end_at = #{requestEndAt},
+           end_at = #{endAt},
+           interest = #{interest},
+           min_price = #{minPrice}
+          <if test="itemKind == 2">
+            ,round = #{round},
+             auto_item_uid = #{autoItemUid}
+          </if>
+    WHERE uid = #{uid}
+  </update>
+
+  <update id="updateSort">
+    UPDATE item
+    SET sort = sort + 1
+    WHERE used_flag = true AND deleted_flag = false
+  </update>
+
+  <update id="updateSortByAdmin">
+    UPDATE item
+    SET sort = #{sort}
+    WHERE used_flag = true AND deleted_flag = false AND
+          uid = #{uid}
+  </update>
+
+
+
+
+  
+  <select id="list" resultType="com.labshigh.aicfo.internal.api.item.dao.ItemDao">
+    SELECT i.uid,
+           i.created_at,
+           i.updated_at,
+           mi.deleted_flag,
+           mi.used_flag,
+           i.vip_flag,
+           i.image_uri,
+           i.name,
+           CONCAT('[', DATE_FORMAT(i.created_at, '%y%m%d') , ']', i.name) AS admin_name,
+           i.price,
+           CAST(i.price AS DECIMAL) * CAST(krw.last AS DECIMAL) AS krw_price,
+           CAST(i.price AS DECIMAL) * CAST(usd.last AS DECIMAL) AS usd_price,
+           i.quantity,
+           i.current_quantity,
+           i.token_uri,
+           i.item_kind,
+           i.mid_sale_flag,
+           i.sort,
+           i.interest,
+           i.description,
+           i.start_at,
+           i.duration_id,
+           cc.name AS duration,
+           i.admin_wallet_uid,
+           mi.quantity - mi.current_quantity AS sell_quantity
+    FROM item i LEFT OUTER JOIN market_item mi on i.uid = mi.item_uid
+        LEFT OUTER JOIN admin_wallet aw on i.admin_wallet_uid = aw.uid
+        LEFT OUTER JOIN common_code cc on i.duration_id = cc.uid
+        LEFT OUTER JOIN exchange_virtual krw on krw.name = 'ETH-KRW'
+        LEFT OUTER JOIN exchange_virtual usd on usd.name = 'ETH-USD'
+    WHERE i.deleted_flag = false AND
+          i.used_flag = true
+
+        <if test="adminWalletUid > 0">
+          AND i.admin_wallet_uid = #{adminWalletUid}
+        </if>
+      <if test="vipFlag != null">
+        AND i.vip_flag = #{vipFlag}
+      </if>
+        <if test="uid > 0">
+          AND i.uid = #{uid}
+        </if>
+        <if test="adminUid > 0">
+          AND aw.admin_uid = #{adminUid}
+        </if>
+    ORDER BY i.sort, i.created_at DESC
+  </select>
+
+  <insert id="insertBuyItem" keyProperty="uid" parameterType="com.labshigh.aicfo.internal.api.item.dao.ItemDao" useGeneratedKeys="true">
+    INSERT INTO item(vip_flag, image_uri, name, price, quantity, current_quantity, token_uri, item_kind, mid_sale_flag, sort, interest, description, start_at, duration_id, admin_wallet_uid)
+    SELECT i.vip_flag, i.image_uri, i.name, i.price, #{quantity}, #{currentQuantity}, i.token_uri, #{itemKind},i.mid_sale_flag,i.sort,i.interest,i.description, i.start_at, i.duration_id, i.admin_wallet_uid
+    FROM   item AS i
+    WHERE i.deleted_flag = false AND
+      i.used_flag = true AND
+      i.uid = #{uid}
+  </insert>
+
+</mapper>
+

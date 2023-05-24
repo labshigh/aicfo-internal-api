@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.labshigh.aicfo.internal.api.log.mapper.LoggingMapper">
+  <insert id="insert" keyProperty="uid" keyColumn="uid" useGeneratedKeys="true" parameterType="com.labshigh.aicfo.internal.api.log.dao.LoggingDao">
+    INSERT INTO `aicfo`.`logging`
+    (
+    `ip`,
+    `access_type`,
+    `http_method_type`,
+    `api_url`,
+    `api_parameters`,
+    `email`)
+    VALUES
+    (
+    #{ip},
+    #{accessType},
+    #{httpMethodType},
+    #{apiUrl},
+    #{apiParameters},
+    #{email});
+
+  </insert>
+
+</mapper>

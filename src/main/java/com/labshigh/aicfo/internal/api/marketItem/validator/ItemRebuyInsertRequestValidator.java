@@ -1,0 +1,36 @@
+package com.labshigh.aicfo.internal.api.marketItem.validator;
+
+
+import com.labshigh.aicfo.internal.api.common.Constants;
+import com.labshigh.aicfo.internal.api.marketItem.model.request.ItemRebuyInsertRequestModel;
+import java.math.BigDecimal;
+import lombok.Builder;
+import org.springframework.validation.Errors;
+import org.springframework.validation.Validator;
+
+@Builder
+public class ItemRebuyInsertRequestValidator implements Validator {
+
+  @Override
+  public boolean supports(Class<?> clazz) {
+    return ItemRebuyInsertRequestModel.class.equals(clazz);
+  }
+
+  @Override
+  public void validate(Object target, Errors errors) {
+    ItemRebuyInsertRequestModel requestModel = (ItemRebuyInsertRequestModel) target;
+
+    if (requestModel.getMarketItemUid() < 1 && requestModel.getMarketItemDetailUidList()
+        .isEmpty()) {
+      errors.reject("marketItemUidOrMarketItemDetailUidList.required",
+          String.format(Constants.MSG_REQUIRE_FIELD_ERROR,
+              "marketItemUidOrMarketItemDetailUidList"));
+    }
+
+    if (requestModel.getFogPrice().compareTo(BigDecimal.ZERO) < 0
+        || requestModel.getFogPrice().compareTo(BigDecimal.ZERO) == 0) {
+      errors.reject("fogPrice.required",
+          String.format(Constants.MSG_REQUIRE_FIELD_ERROR, "fogPrice"));
+    }
+  }
+}

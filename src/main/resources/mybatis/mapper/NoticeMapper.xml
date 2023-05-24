@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.labshigh.aicfo.internal.api.board.notice.mapper.NoticeMapper">
+
+  <select id="count" resultType="int">
+    SELECT  count(*)
+      FROM  board_notice bn
+INNER JOIN  (
+      SELECT  uid
+        FROM  common_code
+       WHERE  parent_common_code_uid = 26
+      ) nt ON bn.notice_type_uid = nt.uid
+     WHERE bn.delete_flag = false
+      AND bn.used_flag = true
+    <choose>
+      <when test="searchKey != null and searchKey == 'email'">
+        AND email LIKE concat('%', #{searchValue}, '%')
+      </when>
+      <when test="searchValue != null and searchValue != ''">
+        AND (
+          bn.title LIKE concat('%', #{searchValue}, '%')
+            OR
+          bn.content LIKE concat('%', #{searchValue}, '%')
+          )
+      </when>
+      <otherwise>
+        AND 1=1
+      </otherwise>
+    </choose>
+  </select>
+
+  <select id="offsetCount" resultType="int">
+      SELECT  #{offsetAndRowCount.rowCount} - count(*)
+        FROM  board_notice sub
+       WHERE  sub.delete_flag = false
+         AND  sub.used_flag = true
+         AND  sub.sticky = true
+  </select>
+
+  <select id="list" resultType="com.labshigh.aicfo.internal.api.board.notice.dao.NoticeDao">
+      (
+          SELECT  bn.uid
+                  ,bn.created_at as createdAt
+                  ,bn.content_updated_at as updatedAt
+                  ,bn.title
+                  ,bn.content
+                  ,bn.delete_flag
+                  ,bn.used_flag
+                  ,bn.view_count
+                  ,bn.notice_type_uid AS noticeTypeUid
+                  ,nt.name_kr AS nameKr
+                  ,IFNULL(bn.sticky, 0) as sticky
+                  ,IFNULL(bn.sticky_sort, 0) as stickySort
+                  ,bn.popup_flag
+                  <![CDATA[
+                    ,IF( Length(IFNULL(bn.content_updated_at, '')) <=0, false, true ) as isUpdate
+                  ]]>
+            FROM  board_notice bn
+      INNER JOIN  (
+          SELECT  uid, name_kr
+            FROM  common_code
+           WHERE  parent_common_code_uid = 26
+      ) nt ON bn.notice_type_uid = nt.uid
+           WHERE  bn.sticky = true
+             AND  bn.delete_flag = false
+             AND  bn.used_flag = true
+        ORDER BY  bn.sticky_sort desc
+      )
+      UNION ALL
+      (
+          SELECT  bn.uid
+                  ,bn.created_at as createdAt
+                  ,bn.content_updated_at as updatedAt
+                  ,bn.title
+                  ,bn.content
+                  ,bn.delete_flag
+                  ,bn.used_flag
+                  ,bn.view_count
+                  ,bn.notice_type_uid AS noticeTypeUid
+                  ,nt.name_kr AS nameKr
+                  ,bn.sticky as sticky
+                  ,bn.sticky_sort as stickySort
+                  ,bn.popup_flag
+                  <![CDATA[
+                    ,IF( Length(IFNULL(bn.content_updated_at, '')) <=0, false, true ) as isUpdate
+                  ]]>
+            FROM  board_notice bn
+      INNER JOIN  (
+          SELECT  uid, name_kr
+            FROM  common_code
+           WHERE  parent_common_code_uid = 26
+      ) nt ON bn.notice_type_uid = nt.uid
+           WHERE  bn.delete_flag = false
+             AND  bn.used_flag = true
+             AND  bn.sticky = false
+                  <choose>
+                    <when test="searchKey != null and searchKey == 'email'">
+                    AND  email LIKE concat('%', #{searchValue}, '%')
+                    </when>
+                    <when test="searchValue != null and searchValue != ''">
+                        AND (
+                        bn.title LIKE concat('%', #{searchValue}, '%')
+                        OR
+                        bn.content LIKE concat('%', #{searchValue}, '%')
+                        )
+                    </when>
+                    <otherwise>
+                    AND 1=1
+                    </otherwise>
+                  </choose>
+      ORDER BY    bn.sticky_sort DESC, bn.created_at DESC
+         LIMIT    #{offsetAndRowCount.offset}, #{offsetAndRowCount.rowCount}
+      )
+      order by sticky DESC, stickySort DESC, createdAt DESC
+  </select>
+
+  <select id="countForAdmin" resultType="int">
+      SELECT  count(*)
+      FROM  board_notice bn
+      INNER JOIN  (
+          SELECT  uid, name_kr
+            FROM  common_code
+           WHERE  parent_common_code_uid = 26
+      ) nt ON bn.notice_type_uid = nt.uid
+      WHERE 1 = 1
+        AND  bn.delete_flag = false
+  </select>
+
+  <select id="listForAdmin" resultType="com.labshigh.aicfo.internal.api.board.notice.dao.NoticeDao">
+        SELECT  bn.uid
+        ,DATE_FORMAT(bn.created_at,'%Y-%m-%d %H:%i:%S') as createdAt
+        ,DATE_FORMAT(bn.content_updated_at,'%Y-%m-%d %H:%i:%S') as updateAt
+        ,bn.title
+        ,bn.content
+        ,bn.delete_flag
+        ,bn.used_flag
+        ,bn.view_count
+        ,bn.notice_type_uid AS noticeTypeUid
+        ,nt.name_kr AS nameKr
+        ,bn.popup_flag
+        ,bn.sticky AS sticky
+        FROM  board_notice bn
+        INNER JOIN  (
+            SELECT  uid, name_kr
+              FROM  common_code
+             WHERE  parent_common_code_uid = 26
+        ) nt ON bn.notice_type_uid = nt.uid
+        WHERE 1 = 1
+          AND  bn.delete_flag = false
+        ORDER BY FIELD(bn.sticky, 0, 1) DESC, bn.created_at DESC, bn.sticky_sort DESC
+        LIMIT #{offsetAndRowCount.offset}, #{offsetAndRowCount.rowCount}
+  </select>
+
+  <select id="detail" resultType="com.labshigh.aicfo.internal.api.board.notice.dao.NoticeDao">
+    <![CDATA[
+      SELECT  bn.uid
+              ,DATE_FORMAT(bn.created_at,'%Y-%m-%d %H:%i:%S') as createdAt
+              ,bn.content_updated_at as updatedAt
+              ,bn.title
+              ,bn.content
+              ,bn.delete_flag
+              ,bn.used_flag
+              ,bn.view_count
+              ,bn.notice_type_uid
+              ,nt.name_kr
+              ,bn.sticky
+              ,bn.sticky_sort
+              ,IF( Length(IFNULL(bn.content_updated_at, '')) <=0, false, true ) as isUpdate
+              ,IFNULL(prv.prevUid, 0) AS prevUid
+              ,IFNULL(prv.prevTitle, '') AS prevTitle
+              ,prv.prevViewCount
+              ,IFNULL(nxt.nextUid, 0) AS nextUid
+              ,IFNULL(nxt.nextTitle, '') AS nextTitle
+              ,nxt.nextViewCount
+              ,bn.popup_flag
+        FROM  board_notice bn
+  INNER JOIN  (
+            SELECT  uid, name_kr
+              FROM  common_code
+             WHERE  parent_common_code_uid = 26
+        ) nt ON bn.notice_type_uid = nt.uid
+  LEFT OUTER JOIN
+              (
+                  SELECT  sub_bn.uid AS prevUid
+                       ,sub_bn.title AS prevTitle
+                       ,sub_bn.view_count AS prevViewCount
+                       ,#{uid} as uid
+                  FROM  board_notice sub_bn
+                            INNER JOIN  (
+                      SELECT  uid, name_kr
+                      FROM  common_code
+                      WHERE  parent_common_code_uid = 26
+                  ) nt ON sub_bn.notice_type_uid = nt.uid
+                  WHERE  sub_bn.uid < #{uid}
+                    AND  sub_bn.delete_flag = false
+                    AND  sub_bn.used_flag = true
+                    AND  sub_bn.sticky = false
+                  order by sub_bn.uid desc
+                      LIMIT  1
+              ) prv on bn.uid = prv.uid
+  LEFT OUTER JOIN
+              (
+                  SELECT  sub_bn.uid AS nextUid
+                       ,sub_bn.title AS nextTitle
+                       ,sub_bn.view_count AS nextViewCount
+                       ,#{uid} as uid
+                  FROM  board_notice sub_bn
+                            INNER JOIN  (
+                      SELECT  uid, name_kr
+                      FROM  common_code
+                      WHERE  parent_common_code_uid = 26
+                  ) nt ON sub_bn.notice_type_uid = nt.uid
+                  WHERE  sub_bn.uid > #{uid}
+                    AND  sub_bn.delete_flag = false
+                    AND  sub_bn.used_flag = true
+                    AND  sub_bn.sticky = false
+                      LIMIT  1
+              ) nxt on bn.uid = nxt.uid
+       WHERE  bn.uid = #{uid}
+      ]]>
+  </select>
+
+  <select id="prev" resultType="com.labshigh.aicfo.internal.api.board.notice.dao.NoticeDao">
+      <![CDATA[
+      SELECT  sub_bn.uid AS uid
+              ,sub_bn.title AS title
+              ,sub_bn.view_count AS viewCount
+        FROM  board_notice sub_bn
+  INNER JOIN  (
+          SELECT  uid, name_kr
+            FROM  common_code
+           WHERE  parent_common_code_uid = 26
+      ) nt ON sub_bn.notice_type_uid = nt.uid
+       WHERE  sub_bn.uid < #{uid}
+         AND  sub_bn.delete_flag = false
+         AND  sub_bn.used_flag = true
+         AND  sub_bn.sticky = false
+       LIMIT  1
+      ]]>
+  </select>
+
+    <select id="next" resultType="com.labshigh.aicfo.internal.api.board.notice.dao.NoticeDao">
+      <![CDATA[
+        SELECT  sub_bn.uid AS uid
+                ,sub_bn.title AS title
+                ,sub_bn.view_count AS viewCount
+        FROM  board_notice sub_bn
+                  INNER JOIN  (
+            SELECT  uid, name_kr
+            FROM  common_code
+            WHERE  parent_common_code_uid = 26
+        ) nt ON sub_bn.notice_type_uid = nt.uid
+        WHERE  sub_bn.uid > #{uid}
+          AND  sub_bn.delete_flag = false
+          AND  sub_bn.used_flag = true
+          AND  sub_bn.sticky = false
+            LIMIT  1
+        ]]>
+  </select>
+
+  <insert id="insert" useGeneratedKeys="true" keyProperty="uid">
+      INSERT INTO board_notice
+              (
+               title
+               ,content
+               ,delete_flag
+               ,used_flag
+               ,notice_type_uid
+               ,created_at
+               ,sticky
+               ,sticky_sort
+               ,popup_flag
+               )
+          VALUES
+              (
+               #{title}
+               ,#{content}
+               ,0
+               ,#{usedFlag}
+               ,#{noticeTypeUid}
+               ,now()
+               ,#{sticky}
+               ,#{stickySort}
+               ,#{popupFlag}
+              )
+  </insert>
+
+  <update id="update">
+      UPDATE  board_notice
+         SET  title = #{title}
+              ,content = #{content}
+              ,notice_type_uid = #{noticeTypeUid}
+              ,delete_flag = #{deleteFlag}
+              ,used_flag = #{usedFlag}
+              ,sticky = #{sticky}
+              ,sticky_sort = #{stickySort}
+              ,popup_flag = #{popupFlag}
+              ,content_updated_at = NOW()
+       WHERE  uid = #{uid}
+  </update>
+
+
+    <select id="noticeTypeList" resultType="com.labshigh.aicfo.internal.api.board.notice.dao.NoticeDao">
+        SELECT  uid, name_kr
+          FROM  common_code
+         WHERE  parent_common_code_uid = 26
+    </select>
+
+    <update id="updateViewCount">
+        UPDATE  board_notice
+        SET  view_count = view_count+1
+        WHERE  uid = #{uid}
+    </update>
+
+  <select id="popupList" resultType="com.labshigh.aicfo.internal.api.board.notice.dao.NoticeDao">
+      SELECT  bn.title AS title
+              ,bn.content AS content
+              ,bn.content_updated_at AS contentUpdatedAt
+              ,bn.created_at AS createdAt
+              ,nt.name_kr AS nameKr
+              ,bn.uid AS uid
+        FROM  board_notice bn
+  INNER JOIN  (
+                  SELECT  uid, name_kr
+                  FROM  common_code
+                  WHERE  parent_common_code_uid = 26
+              ) nt ON bn.notice_type_uid = nt.uid
+       WHERE  bn.delete_flag = FALSE
+         AND  bn.used_flag = TRUE
+         AND  bn.popup_flag = TRUE
+  </select>
+</mapper>

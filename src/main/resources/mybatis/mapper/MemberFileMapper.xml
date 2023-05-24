@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.labshigh.aicfo.internal.api.member.mapper.MemberFileMapper">
+  <insert id="insert" parameterType="com.labshigh.aicfo.internal.api.member.dao.MemberFileDao" useGeneratedKeys="true" keyProperty="uid">
+    INSERT INTO member_file (member_uid,content_type, file) VALUES (#{memberUid},#{contentType}, #{file})
+  </insert>
+
+  <select id="get" resultType="com.labshigh.aicfo.internal.api.member.dao.MemberFileDao">
+    SELECT
+      uid,
+      member_uid,
+      content_type,
+      file
+    FROM member_file
+    WHERE deleted_flag = false AND
+    used_flag = true AND
+    <choose>
+      <when test="uid != null and uid != 0">
+        uid = #{uid}
+      </when>
+      <otherwise>
+        uid = #{uid}
+      </otherwise>
+    </choose>
+  </select>
+</mapper>
