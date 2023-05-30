@@ -11,6 +11,9 @@ spring:
     url: jdbc:mysql://db-gm1fi-kr.vpc-pub-cdb.ntruss.com:3306/aicfo?&zeroDateTimeBehavior=convertToNull&autoReconnect=true&noAccessToProcedureBodies=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Seoul
     username: aicfo
     password: J5d{(Lq],R,ncOW9q
+#    url: jdbc:mysql://localhost:3306/nftmoa?&zeroDateTimeBehavior=convertToNull&autoReconnect=true&noAccessToProcedureBodies=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Seoul
+#    username: root
+#    password: Flier7malt
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
       max-lifetime: 26000
