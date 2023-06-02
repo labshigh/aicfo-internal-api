@@ -86,6 +86,7 @@ public class BoardService {
 
     if (requestModel.isUpdateViewCount()) {
       updateViewCount(dao);
+      detail.setViewCount(detail.getViewCount() + 1);
     }
 
     BoardDetailResponseModel result = convertBoardDetailResponseModel(detail);
@@ -122,13 +123,13 @@ public class BoardService {
 
     if (requestModel.getIncrement() == 1) {
 
-      if (count > 0) {
+      if (count == 1) {
         throw new ServiceException(Constants.MSG_SCAM_BOARD_OPTINON_DUPLICATE_ERROR);
       }
       //히스토리 등록
       boardRecommendHistoryMapper.insert(boardRecommendHistoryDao);
     } else {
-      if (count == 1) {
+      if (count == 0) {
         throw new ServiceException(Constants.MSG_NO_DATA);
       }
       //히스토리 삭제
@@ -174,7 +175,7 @@ public class BoardService {
         .deletedFlag(dao.isDeletedFlag())
         .usedFlag(dao.getUsedFlag())
         .title(dao.getTitle())
-        .content(dao.getTitle())
+        .content(dao.getContent())
         .uri(getFileUri(dao.getUri()))
         .viewCount(dao.getViewCount())
         .recommendCount(dao.getRecommendCount())
@@ -219,6 +220,11 @@ public class BoardService {
 
 
   private String getFileUri(String uri) {
+
+    if (uri == null) {
+      return null;
+    }
+
     return "https://" + s3EndPoint + "/" + s3NftBucket + "/" + uri;
   }
 

@@ -14,7 +14,7 @@
     WHERE uid = #{uid}
   </delete>
 
-  <select id="select" resultType="com.labshigh.aicfo.internal.api.board.dao.BoardFileDao" >
+  <select id="list" resultType="com.labshigh.aicfo.internal.api.board.dao.BoardFileDao" >
     SELECT uid,
            created_at,
            updated_at,

@@ -23,6 +23,11 @@ public class BoardUpdateRecommendCountRequestValidator implements Validator {
           String.format(Constants.MSG_REQUIRE_FIELD_ERROR, "boardUid"));
     }
 
+    if (requestModel.getMemberUid() < 1) {
+      errors.reject("memberUid.required",
+          String.format(Constants.MSG_REQUIRE_FIELD_ERROR, "memberUid"));
+    }
+
     if (!(requestModel.getIncrement() == 1 || requestModel.getIncrement() == -1)) {
       errors.reject("increment.valueError",
           Constants.MSG_VALUE_ERROR);
