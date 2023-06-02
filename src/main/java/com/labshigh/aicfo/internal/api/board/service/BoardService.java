@@ -155,7 +155,7 @@ public class BoardService {
         .deletedFlag(dao.isDeletedFlag())
         .usedFlag(dao.getUsedFlag())
         .title(dao.getTitle())
-        .content(dao.getTitle())
+        .content(dao.getContent())
         .uri(getFileUri(dao.getUri()))
         .viewCount(dao.getViewCount())
         .recommendCount(dao.getRecommendCount())

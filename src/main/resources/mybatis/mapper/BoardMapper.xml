@@ -54,7 +54,7 @@
       AND b.counsel_kind_common_code_uid = #{counselKindCommonCodeUid}
     </if>
     <if test="currentBoardUid > 0">
-      AND b.uid <![CDATA[ < ]]> #{currentBoardUid}
+      AND b.uid <![CDATA[ <> ]]> #{currentBoardUid}
     </if>
   </select>
 
@@ -84,7 +84,7 @@
           AND b.counsel_kind_common_code_uid = #{counselKindCommonCodeUid}
         </if>
         <if test="currentBoardUid > 0">
-          AND b.uid <![CDATA[ < ]]> #{currentBoardUid}
+          AND b.uid <![CDATA[ <> ]]> #{currentBoardUid}
         </if>
     ORDER BY b.top_flag DESC, b.uid DESC
 
