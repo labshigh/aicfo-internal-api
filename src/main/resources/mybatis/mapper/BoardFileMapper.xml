@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.labshigh.aicfo.internal.api.board.mapper.BoardFileMapper">
+
+  <insert id="insert" keyProperty="uid" parameterType="com.labshigh.aicfo.internal.api.board.dao.BoardFileDao" useGeneratedKeys="true">
+    INSERT INTO board_file(board_uid, uri, file_name)
+    VALUES (#{boardUid}, #{uri}, #{fileName})
+  </insert>
+
+  <delete id="delete">
+    UPDATE board_file
+    SET deleted_flag = true
+    WHERE uid = #{uid}
+  </delete>
+
+  <select id="select" resultType="com.labshigh.aicfo.internal.api.board.dao.BoardFileDao" >
+    SELECT uid,
+           created_at,
+           updated_at,
+           deleted_flag,
+           used_flag,
+           board_uid,
+           uri,
+           file_name
+    FROM board_file
+    WHERE deleted_flag = false
+            AND used_flag = true
+            AND board_uid = #{boardUid}
+  </select>
+
+
+</mapper>

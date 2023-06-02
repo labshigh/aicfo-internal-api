@@ -12,9 +12,8 @@ import com.amazonaws.services.s3.model.GroupGrantee;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.Permission;
 import com.amazonaws.services.s3.model.PutObjectRequest;
-import com.labshigh.aicfo.internal.api.common.utils.enums.FileType;
 import com.labshigh.aicfo.core.utils.JsonUtils;
-
+import com.labshigh.aicfo.internal.api.common.utils.enums.FileType;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -22,7 +21,6 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.UUID;
-
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -144,11 +142,8 @@ public class FileUploadUtils {
     String result = null;
 
     switch (fileType) {
-      case nft:
-        result = "nft/" + pathName + "/";
-        break;
-      case nftAttach:
-        result = commonCodeUid.toString() + "/" + pathName + "/";
+      case board:
+        result = fileType.name() + "/" + commonCodeUid + "/" + pathName + "/";
         break;
     }
     return result;
@@ -158,8 +153,8 @@ public class FileUploadUtils {
     // S3 client
     AWSCredentials credentials = new BasicAWSCredentials(ncloudAccessKey, ncloudSecretKey);
     AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials
-    (new AWSStaticCredentialsProvider(credentials))
-      .withRegion(s3Region).build();
+            (new AWSStaticCredentialsProvider(credentials))
+        .withRegion(s3Region).build();
 
     return s3;
   }

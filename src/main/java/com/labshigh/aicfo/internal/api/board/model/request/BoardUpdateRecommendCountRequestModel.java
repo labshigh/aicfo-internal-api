@@ -1,0 +1,13 @@
+package com.labshigh.aicfo.internal.api.board.model.request;
+
+import lombok.Getter;
+import lombok.Setter;
+
+@Getter
+@Setter
+public class BoardUpdateRecommendCountRequestModel {
+
+  private long boardUid;
+  private long memberUid;
+  private int increment;
+}

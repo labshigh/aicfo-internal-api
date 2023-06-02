@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.labshigh.aicfo.internal.api.board.mapper.BoardMapper">
+  <insert id="insert"  keyProperty="uid" parameterType="com.labshigh.aicfo.internal.api.board.dao.BoardDao" useGeneratedKeys="true">
+    INSERT INTO board(title, content, uri, counsel_kind_common_code_uid, board_type_common_code_uid, top_flag)
+    VALUES(#{title}, #{content}, #{uri}, #{counselKindCommonCodeUid}, #{boardTypeCommonCodeUid},#{topFlag})
+  </insert>
+
+  <update id="update" parameterType="com.labshigh.aicfo.internal.api.board.dao.BoardDao">
+    UPDATE board
+    SET title = #{title},
+        content = #{content},
+        uri = #{uri},
+        <if test="counselKindCommonCodeUid > 0" >
+          counsel_kind_common_code_uid = #{counselKindCommonCodeUid},
+        </if>
+        board_type_common_code_uid = #{boardTypeCommonCodeUid},
+        top_flag = #{topFlag}
+    WHERE uid = #{uid}
+  </update>
+
+  <update id="updateViewCount">
+    UPDATE board
+    SET view_count = view_count + 1
+    WHERE deleted_flag = false
+            AND used_flag = true
+            AND uid = #{uid}
+  </update>
+
+  <update id="updateRecommendCount">
+    UPDATE board
+    SET recommend_count = recommend_count + #{recommendCount}
+    WHERE deleted_flag = false
+            AND used_flag = true
+            AND uid = #{uid}
+  </update>
+
+
+  <delete id="delete" >
+    UPDATE board
+    SET deleted_flag = true
+    WHERE uid = #{uid}
+  </delete>
+
+  <select id="count" resultType="int">
+    SELECT COUNT(*)
+    FROM  board b LEFT OUTER JOIN common_code cck on cck.uid = b.counsel_kind_common_code_uid AND cck.used_flag = true ANd cck.deleted_flag = false
+    LEFT OUTER JOIN common_code cct on cct.uid = b.board_type_common_code_uid AND cct.used_flag = true ANd cct.deleted_flag = false
+    WHERE b.deleted_flag = false
+    AND b.used_flag = true
+    AND b.board_type_common_code_uid = #{boardTypeCommonCodeUid}
+    <if test="counselKindCommonCodeUid > 0" >
+      AND b.counsel_kind_common_code_uid = #{counselKindCommonCodeUid}
+    </if>
+    <if test="currentBoardUid > 0">
+      AND b.uid <![CDATA[ < ]]> #{currentBoardUid}
+    </if>
+  </select>
+
+  <select id="list" resultType="com.labshigh.aicfo.internal.api.board.dao.BoardDao">
+    SELECT b.uid,
+    b.created_at,
+    b.updated_at,
+    b.deleted_flag,
+    b.used_flag,
+    b.title,
+    b.content,
+    b.uri,
+    b.view_count,
+    b.recommend_count,
+    b.counsel_kind_common_code_uid,
+    cck.name as counselKindName,
+    b.board_type_common_code_uid,
+    cct.name as boardTypeName,
+    b.top_flag
+
+    FROM board b LEFT OUTER JOIN common_code cck on cck.uid = b.counsel_kind_common_code_uid AND cck.used_flag = true ANd cck.deleted_flag = false
+                 LEFT OUTER JOIN common_code cct on cct.uid = b.board_type_common_code_uid AND cct.used_flag = true ANd cct.deleted_flag = false
+    WHERE b.deleted_flag = false
+        AND b.used_flag = true
+        AND b.board_type_common_code_uid = #{boardTypeCommonCodeUid}
+        <if test="counselKindCommonCodeUid > 0" >
+          AND b.counsel_kind_common_code_uid = #{counselKindCommonCodeUid}
+        </if>
+        <if test="currentBoardUid > 0">
+          AND b.uid <![CDATA[ < ]]> #{currentBoardUid}
+        </if>
+    ORDER BY b.top_flag DESC, b.uid DESC
+
+    LIMIT #{offsetAndRowCount.offset}, #{offsetAndRowCount.rowCount}
+
+  </select>
+
+  <select id="detail" resultType="com.labshigh.aicfo.internal.api.board.dao.BoardDao">
+    SELECT b.uid,
+          b.created_at,
+          b.updated_at,
+          b.deleted_flag,
+          b.used_flag,
+          b.title,
+          b.content,
+          b.uri,
+          b.view_count,
+          b.recommend_count,
+          b.counsel_kind_common_code_uid,
+          cck.name as counselKindName,
+          b.board_type_common_code_uid,
+          cct.name as boardTypeName,
+          b.top_flag,
+          IFNULL((SELECT pb.uid
+                  FROM board pb
+                   WHERE pb.deleted_flag = false
+                    AND pb.used_flag = true
+                    AND pb.board_type_common_code_uid = #{boardTypeCommonCodeUid}
+                    <if test="counselKindCommonCodeUid > 0" >
+                      AND pb.counsel_kind_common_code_uid = #{counselKindCommonCodeUid}
+                    </if>
+                   AND b.uid > pb.uid
+                   ORDER BY pb.uid DESC
+                   LIMIT 1
+          ),0) as prev_uid ,
+          IFNULL((SELECT pb.uid
+                  FROM board pb
+                  WHERE pb.deleted_flag = false
+                  AND pb.used_flag = true
+                  AND pb.board_type_common_code_uid = #{boardTypeCommonCodeUid}
+                  <if test="counselKindCommonCodeUid > 0" >
+                    AND pb.counsel_kind_common_code_uid = #{counselKindCommonCodeUid}
+                  </if>
+                  AND pb.uid > b.uid
+                  ORDER BY pb.uid
+                  LIMIT 1
+          ),0) as next_uid
+
+    FROM board b LEFT OUTER JOIN common_code cck on cck.uid = b.counsel_kind_common_code_uid AND cck.used_flag = true ANd cck.deleted_flag = false
+    LEFT OUTER JOIN common_code cct on cct.uid = b.board_type_common_code_uid AND cct.used_flag = true ANd cct.deleted_flag = false
+    WHERE b.deleted_flag = false
+    AND b.used_flag = true
+    AND b.board_type_common_code_uid = #{boardTypeCommonCodeUid}
+    <if test="counselKindCommonCodeUid > 0" >
+      AND b.counsel_kind_common_code_uid = #{counselKindCommonCodeUid}
+    </if>
+    AND b.uid = #{uid}
+    ORDER BY b.created_at DESC
+  </select>
+
+
+</mapper>

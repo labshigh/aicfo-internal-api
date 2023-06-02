@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.labshigh.aicfo.internal.api.board.mapper.BoardRecommendHistoryMapper">
+  <select id="count" resultType="int">
+    SELECT COUNT(*)
+    FROM board_recommend_history
+    WHERE deleted_flag = false
+            AND used_flag = true
+            AND board_uid = #{boardUid}
+            AND member_uid = #{memberUid}
+  </select>
+
+  <select id="select" resultType="com.labshigh.aicfo.internal.api.board.dao.BoardRecommendHistoryDao">
+    SELECT brh.uid,
+           brh.created_at,
+           brh.updated_at,
+           brh.deleted_flag,
+           brh.used_flag,
+           brh.board_uid,
+           brh.member_uid
+    FROM board_recommend_history brh
+    WHERE brh.deleted_flag = false
+      AND brh.used_flag = true
+      AND brh.board_uid = #{boardUid}
+      AND brh.member_uid = #{memberUid}
+  </select>
+
+  <insert id="insert"  keyProperty="uid" parameterType="com.labshigh.aicfo.internal.api.board.dao.BoardRecommendHistoryDao" useGeneratedKeys="true">
+    INSERT board_recommend_history(board_uid,member_uid)
+    VALUES (#{boardUid}, #{memberUid})
+  </insert>
+
+  <delete id="delete">
+    UPDATE board_recommend_history
+    SET deleted_flag = true
+    WHERE deleted_flag = false
+            AND used_flag = true
+            AND uid = #{uid}
+            AND board_uid = #{boardUid}
+            AND member_uid = #{memberUid}
+  </delete>
+
+
+</mapper>

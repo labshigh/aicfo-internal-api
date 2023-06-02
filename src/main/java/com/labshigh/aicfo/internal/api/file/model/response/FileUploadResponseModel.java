@@ -10,4 +10,5 @@ import lombok.Setter;
 public class FileUploadResponseModel {
 
   private String fileUri;
+  private String fileName;
 }
