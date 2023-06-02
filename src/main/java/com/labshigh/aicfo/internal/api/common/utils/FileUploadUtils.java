@@ -142,7 +142,8 @@ public class FileUploadUtils {
     String result = null;
 
     switch (fileType) {
-      case board:
+      case board_attach:
+      case board_content:
         result = fileType.name() + "/" + commonCodeUid + "/" + pathName + "/";
         break;
     }
