@@ -40,3 +40,12 @@ aicfo:
     period: 30
     issuer: pbcninc.com
     allowedTimePeriodDiscrepancy: 0
+
+#Jasypt
+jasypt:
+  encryptor:
+    bean: jasyptStringEncryptor
+    algorithm: PBEWithMD5AndDES
+    pool-size: 1
+    stringOutputType: base64
+    key-obtention-iterations: 1000

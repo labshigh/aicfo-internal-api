@@ -39,3 +39,6 @@ out/
 *.tar
 *.tgz
 .DS_Store
+
+### resources props ###
+*.props

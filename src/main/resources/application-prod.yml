@@ -8,9 +8,9 @@ spring:
     database: 0
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://db-gm1fi-kr.vpc-pub-cdb.ntruss.com:3306/aicfo?&zeroDateTimeBehavior=convertToNull&autoReconnect=true&noAccessToProcedureBodies=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Seoul
-    username: aicfo
-    password: J5d{(Lq],R,ncOW9q
+    url: ENC(45gzFan+xttEb8+4SYHg12O6luf2A2GAxUwPrULL5+02o+YCHnk/SfialODbLNQIy7IZYLIELrDjeEMEVqc0yEqlPZiQNYZsncYoD1aqCYsic2jU4eYHv9ugyA76XqCKfNva/Ay4Wb0lWdPGR5GeDUgxOkAb8xG9szPnpp30Mr1jC8U+mnY5Qkrq9sFonMinnPYKhIOngNEGlDR8dgA/BnTzn+Jv8vXr864aPESW5F0pOn0S7M276sL0xaZLmwLk941rUqcg7aE35x7sfXwxu/2r5JyV/rXRBmII7OzeSSA1vKOqVn/jPg==)
+    username: ENC(SGNdzG2j7S8DQQB6Apc++w==)
+    password: ENC(7wNqXHb5yJTUiUROv4eAtXNMIALZEguD5emcPZGumps=)
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
       max-lifetime: 26000

@@ -19,7 +19,6 @@ import com.labshigh.aicfo.internal.api.common.exceptions.ServiceException;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,7 +27,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Log4j2
 @Service
-@RequiredArgsConstructor
 public class BoardService {
 
   @Value("${ncloud.object-storage.end-point}")

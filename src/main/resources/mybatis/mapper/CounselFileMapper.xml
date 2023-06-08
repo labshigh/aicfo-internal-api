@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.labshigh.aicfo.internal.api.counsel.mapper.CounselFileMapper">
+
+  <insert id="insert" keyProperty="uid" parameterType="com.labshigh.aicfo.internal.api.counsel.dao.CounselFileDao" useGeneratedKeys="true">
+    INSERT INTO counsel_file(counsel_uid, uri, file_name)
+    VALUES (#{counselUid}, #{uri}, #{fileName})
+  </insert>
+
+  <delete id="delete">
+    UPDATE counsel_file
+    SET deleted_flag = true
+    WHERE uid = #{uid}
+  </delete>
+
+  <select id="list" resultType="com.labshigh.aicfo.internal.api.counsel.dao.CounselFileDao">
+
+    SELECT uid,
+           created_at,
+           updated_at,
+           deleted_flag,
+           used_flag,
+           counsel_uid,
+           uri,
+           file_name
+    FROM counsel_file
+    WHERE deleted_flag = false
+            AND used_flag = true
+            AND counsel_uid = #{counselUid}
+
+  </select>
+
+
+</mapper>

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.labshigh.aicfo.internal.api.counsel.mapper.CounselMapper">
+
+  <insert id="insert" keyProperty="uid" parameterType="com.labshigh.aicfo.internal.api.counsel.dao.CounselDao" useGeneratedKeys="true">
+    INSERT INTO counsel(counsel_kind_common_code_uid, counsel_reservation_common_code_uid, cfo_uid, member_uid, counsel_payment_common_code_uid, counsel_at, content, phone_number, phone_verified_flag, counsel_at_common_code_uid)
+    VALUES (#{counselKindCommonCodeUid}, #{counselReservationCommonCodeUid}, #{cfoUid}, #{memberUid}, #{counselPaymentCommonCodeUid}, #{counselAt}, #{content}, #{phoneNumber}, #{phoneVerifiedFlag}, #{counselAtCommonCodeUid})
+  </insert>
+
+  <update id="updateComplete" >
+    UPDATE counsel
+    SET complete_flag = true
+    WHERE uid = #{uid} AND member_uid = #{memberUid}
+  </update>
+
+  <select id="count" resultType="int" >
+    SELECT COUNT(*)
+    FROM counsel cs LEFT OUTER JOIN common_code kind on cs.counsel_kind_common_code_uid = kind.uid AND kind.used_flag = true AND kind.deleted_flag = false
+    LEFT OUTER JOIN common_code res on cs.counsel_reservation_common_code_uid = res.uid AND res.used_flag = true AND res.deleted_flag = false
+    LEFT OUTER JOIN common_code pay on cs.counsel_payment_common_code_uid = pay.uid AND pay.used_flag = true AND pay.deleted_flag = false
+    LEFT OUTER JOIN common_code at on cs.counsel_at_common_code_uid = at.uid AND at.used_flag = true AND at.deleted_flag = false
+    LEFT OUTER JOIN cfo  on cs.cfo_uid = cfo.uid AND cfo.used_flag = true AND cfo.deleted_flag = false
+    WHERE cs.deleted_flag = false
+    AND cs.used_flag = true
+    AND cs.member_uid = #{memberUid}
+
+  </select>
+
+  <select id="list" resultType="com.labshigh.aicfo.internal.api.counsel.dao.CounselDao" >
+    SELECT cs.uid,
+        cs.created_at,
+        cs.updated_at,
+        cs.deleted_flag,
+        cs.used_flag,
+        cs.counsel_kind_common_code_uid,
+        kind.name as counsel_kind_common_code_name,
+        cs.counsel_reservation_common_code_uid,
+        res.name as counsel_reservation_common_code_name,
+        cs.cfo_uid,
+        cs.member_uid,
+        cs.counsel_payment_common_code_uid,
+        pay.name as counsel_payment_common_code_name,
+        cs.counsel_at,
+        cs.content,
+        cs.phone_number,
+        cs.phone_verified_flag,
+        cs.complete_flag,
+        cs.counsel_at_common_code_uid,
+        at.name as counsel_at_common_code_name,
+        cfo.name as cfo_name,
+        cfo.career,
+        cfo.profile_uri
+    FROM counsel cs LEFT OUTER JOIN common_code kind on cs.counsel_kind_common_code_uid = kind.uid AND kind.used_flag = true AND kind.deleted_flag = false
+        LEFT OUTER JOIN common_code res on cs.counsel_reservation_common_code_uid = res.uid AND res.used_flag = true AND res.deleted_flag = false
+        LEFT OUTER JOIN common_code pay on cs.counsel_payment_common_code_uid = pay.uid AND pay.used_flag = true AND pay.deleted_flag = false
+        LEFT OUTER JOIN common_code at on cs.counsel_at_common_code_uid = at.uid AND at.used_flag = true AND at.deleted_flag = false
+        LEFT OUTER JOIN cfo  on cs.cfo_uid = cfo.uid AND cfo.used_flag = true AND cfo.deleted_flag = false
+    WHERE cs.deleted_flag = false
+            AND cs.used_flag = true
+            AND cs.member_uid = #{memberUid}
+
+    <choose>
+      <when test="sort.name() == 'PAYMENTLATEST'">
+        ORDER BY uid DESC
+      </when>
+      <when test="sort.name() == 'PAYMENTOLDEST'">
+        ORDER BY uid
+      </when>
+      <when test="sort.name() == 'COUNSELATLATEST'">
+        ORDER BY counsel_at DESC
+      </when>
+      <when test="sort.name() == 'COUNSELATOLDEST'">
+        ORDER BY counsel_at ASC
+      </when>
+    </choose>
+
+    LIMIT #{offsetAndRowCount.offset}, #{offsetAndRowCount.rowCount}
+  </select>
+
+  <select id="detail" resultType="com.labshigh.aicfo.internal.api.counsel.dao.CounselDao" >
+    SELECT cs.uid,
+      cs.created_at,
+      cs.updated_at,
+      cs.deleted_flag,
+      cs.used_flag,
+      cs.counsel_kind_common_code_uid,
+      kind.name as counsel_kind_common_code_name,
+      cs.counsel_reservation_common_code_uid,
+      res.name as counsel_reservation_common_code_name,
+      cs.cfo_uid,
+      cs.member_uid,
+      cs.counsel_payment_common_code_uid,
+      pay.name as counsel_payment_common_code_name,
+      cs.counsel_at,
+      cs.content,
+      cs.phone_number,
+      cs.phone_verified_flag,
+      cs.complete_flag,
+      cs.counsel_at_common_code_uid,
+      at.name as counsel_at_common_code_name,
+      cfo.name as cfo_name,
+      cfo.career,
+      cfo.profile_uri
+    FROM counsel cs LEFT OUTER JOIN common_code kind on cs.counsel_kind_common_code_uid = kind.uid AND kind.used_flag = true AND kind.deleted_flag = false
+    LEFT OUTER JOIN common_code res on cs.counsel_reservation_common_code_uid = res.uid AND res.used_flag = true AND res.deleted_flag = false
+    LEFT OUTER JOIN common_code pay on cs.counsel_payment_common_code_uid = pay.uid AND pay.used_flag = true AND pay.deleted_flag = false
+    LEFT OUTER JOIN common_code at on cs.counsel_at_common_code_uid = at.uid AND at.used_flag = true AND at.deleted_flag = false
+    LEFT OUTER JOIN cfo  on cs.cfo_uid = cfo.uid AND cfo.used_flag = true AND cfo.deleted_flag = false
+    WHERE cs.deleted_flag = false
+    AND cs.used_flag = true
+    AND cs.member_uid = #{memberUid}
+    AND cs.uid = #{uid}
+
+  </select>
+
+</mapper>
