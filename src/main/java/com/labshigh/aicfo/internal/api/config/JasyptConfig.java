@@ -2,9 +2,10 @@ package com.labshigh.aicfo.internal.api.config;
 
 
 import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties;
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.InputStreamReader;
+import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import org.jasypt.encryption.StringEncryptor;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
@@ -41,8 +42,12 @@ public class JasyptConfig {
 
   private String getJasyptPassword() {
     ClassPathResource resource = new ClassPathResource("jasypt.props");
+    String result = null;
     try {
-      return String.join("", Files.readAllLines(Paths.get(resource.getURI())));
+      result = new BufferedReader(new InputStreamReader(resource.getInputStream(), "UTF-8"))
+          .lines().collect(Collectors.joining(""));
+
+      return result;
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
