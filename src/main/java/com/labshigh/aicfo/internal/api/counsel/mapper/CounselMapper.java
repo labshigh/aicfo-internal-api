@@ -14,6 +14,8 @@ public interface CounselMapper {
 
   void updateComplete(CounselDao dao);
 
+  void updateCancel(CounselDao dao);
+
   int count(CounselListRequestModel requestModel);
 
   List<CounselDao> list(CounselListRequestModel requestModel);

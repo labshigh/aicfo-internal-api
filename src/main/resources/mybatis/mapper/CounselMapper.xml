@@ -14,6 +14,16 @@
     WHERE uid = #{uid} AND member_uid = #{memberUid}
   </update>
 
+  <update id="updateCancel" >
+    UPDATE counsel
+    SET cancel_flag = true
+    WHERE uid = #{uid} AND member_uid = #{memberUid}
+  </update>
+
+
+
+
+
   <select id="count" resultType="int" >
     SELECT COUNT(*)
     FROM counsel cs LEFT OUTER JOIN common_code kind on cs.counsel_kind_common_code_uid = kind.uid AND kind.used_flag = true AND kind.deleted_flag = false
@@ -50,7 +60,8 @@
         at.name as counsel_at_common_code_name,
         cfo.name as cfo_name,
         cfo.career,
-        cfo.profile_uri
+        cfo.profile_uri,
+        cs.cancel_flag
     FROM counsel cs LEFT OUTER JOIN common_code kind on cs.counsel_kind_common_code_uid = kind.uid AND kind.used_flag = true AND kind.deleted_flag = false
         LEFT OUTER JOIN common_code res on cs.counsel_reservation_common_code_uid = res.uid AND res.used_flag = true AND res.deleted_flag = false
         LEFT OUTER JOIN common_code pay on cs.counsel_payment_common_code_uid = pay.uid AND pay.used_flag = true AND pay.deleted_flag = false
@@ -101,7 +112,8 @@
       at.name as counsel_at_common_code_name,
       cfo.name as cfo_name,
       cfo.career,
-      cfo.profile_uri
+      cfo.profile_uri,
+      cs.cancel_flag
     FROM counsel cs LEFT OUTER JOIN common_code kind on cs.counsel_kind_common_code_uid = kind.uid AND kind.used_flag = true AND kind.deleted_flag = false
     LEFT OUTER JOIN common_code res on cs.counsel_reservation_common_code_uid = res.uid AND res.used_flag = true AND res.deleted_flag = false
     LEFT OUTER JOIN common_code pay on cs.counsel_payment_common_code_uid = pay.uid AND pay.used_flag = true AND pay.deleted_flag = false

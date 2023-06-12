@@ -40,6 +40,7 @@ public class CounselResponseModel {
   private String cfoName;
   private String career;
   private String profileUri;
+  private boolean cancelFlag;
 
   private List<CounselFileResponseModel> fileList;
 

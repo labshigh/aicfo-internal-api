@@ -43,6 +43,7 @@ public class CounselDao {
   private String cfoName;
   private String career;
   private String profileUri;
+  private boolean cancelFlag;
 
 
 }

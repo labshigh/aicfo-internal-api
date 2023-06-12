@@ -9,8 +9,11 @@ import com.labshigh.aicfo.internal.api.counsel.model.request.CounselDetailReques
 import com.labshigh.aicfo.internal.api.counsel.model.request.CounselFileInsertModel;
 import com.labshigh.aicfo.internal.api.counsel.model.request.CounselInsertRequestModel;
 import com.labshigh.aicfo.internal.api.counsel.model.request.CounselListRequestModel;
+import com.labshigh.aicfo.internal.api.counsel.model.request.CounselUpdateRequestModel;
 import com.labshigh.aicfo.internal.api.counsel.model.response.CounselFileResponseModel;
 import com.labshigh.aicfo.internal.api.counsel.model.response.CounselResponseModel;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -71,13 +74,18 @@ public class CounselService {
 
     CounselResponseModel result;
 
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+    LocalDateTime counselAt = LocalDateTime.parse(requestModel.getCounselAt(), formatter);
+
     CounselDao dao = CounselDao.builder()
         .counselKindCommonCodeUid(requestModel.getCounselKindCommonCodeUid())
         .counselReservationCommonCodeUid(requestModel.getCounselReservationCommonCodeUid())
         .cfoUid(requestModel.getCfoUid())
         .memberUid(requestModel.getMemberUid())
         .counselPaymentCommonCodeUid(requestModel.getCounselPaymentCommonCodeUid())
-        .counselAt(requestModel.getCounselAt())
+        //.counselAt(requestModel.getCounselAt())
+        .counselAt(counselAt)
         .content(requestModel.getContent())
         .phoneNumber(requestModel.getPhoneNumber())
         .phoneVerifiedFlag(requestModel.isPhoneVerifiedFlag())
@@ -89,7 +97,7 @@ public class CounselService {
     result = convertCounselResponseModel(dao, false);
     result.setFileList(Collections.emptyList());
 
-    if (requestModel.getFileList().size() > 0) {
+    if (!requestModel.getFileList().isEmpty()) {
       for (CounselFileInsertModel counselFileInsertModel : requestModel.getFileList()) {
         CounselFileDao counselFileDao = CounselFileDao.builder()
             .counselUid(dao.getUid())
@@ -106,6 +114,23 @@ public class CounselService {
 
     return result;
   }
+
+  @Transactional
+  public void updateCompleteCounsel(CounselUpdateRequestModel requestModel) {
+    counselMapper.updateComplete(CounselDao.builder()
+        .uid(requestModel.getCounselUid())
+        .memberUid(requestModel.getMemberUid())
+        .build());
+  }
+
+  @Transactional
+  public void updateCancelCounsel(CounselUpdateRequestModel requestModel) {
+    counselMapper.updateCancel(CounselDao.builder()
+        .uid(requestModel.getCounselUid())
+        .memberUid(requestModel.getMemberUid())
+        .build());
+  }
+
 
   private CounselResponseModel convertCounselResponseModel(CounselDao dao, boolean isFileListBind) {
 
@@ -139,6 +164,7 @@ public class CounselService {
         .cfoName(dao.getCfoName())
         .career(dao.getCareer())
         .profileUri(dao.getProfileUri())
+        .cancelFlag(dao.isCancelFlag())
         .fileList(fileList)
         .build();
 

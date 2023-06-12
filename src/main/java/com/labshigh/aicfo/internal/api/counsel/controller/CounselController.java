@@ -6,9 +6,12 @@ import com.labshigh.aicfo.internal.api.common.exceptions.ServiceException;
 import com.labshigh.aicfo.internal.api.counsel.model.request.CounselDetailRequestModel;
 import com.labshigh.aicfo.internal.api.counsel.model.request.CounselInsertRequestModel;
 import com.labshigh.aicfo.internal.api.counsel.model.request.CounselListRequestModel;
+import com.labshigh.aicfo.internal.api.counsel.model.request.CounselUpdateRequestModel;
 import com.labshigh.aicfo.internal.api.counsel.service.CounselService;
+import com.labshigh.aicfo.internal.api.counsel.validator.CounselDetailRequestValidator;
 import com.labshigh.aicfo.internal.api.counsel.validator.CounselInsertRequestValidator;
 import com.labshigh.aicfo.internal.api.counsel.validator.CounselListRequestValidator;
+import com.labshigh.aicfo.internal.api.counsel.validator.CounselUpdateRequestValidator;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +21,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -91,7 +95,90 @@ public class CounselController {
       BindingResult bindingResult) {
 
     requestModel.setCounselUid(counselUid);
-    return null;
+    ResponseModel responseModel = new ResponseModel();
+
+    CounselDetailRequestValidator.builder().build().validate(requestModel, bindingResult);
+
+    if (bindingResult.hasErrors()) {
+      responseModel.setStatus(HttpStatus.PRECONDITION_FAILED.value());
+      responseModel.setMessage(bindingResult.getAllErrors().get(0).getDefaultMessage());
+    } else {
+      try {
+        responseModel.setData(counselService.detailCounsel(requestModel));
+      } catch (ServiceException e) {
+        responseModel.setStatus(HttpStatus.PRECONDITION_FAILED.value());
+        responseModel.setMessage(e.getMessage());
+      } catch (Exception e) {
+        responseModel.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        responseModel.setMessage(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
+        responseModel.error.setErrorCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        responseModel.error.setErrorMessage(e.getLocalizedMessage());
+      }
+    }
+
+    return responseModel.toResponse();
+  }
+
+  @ApiOperation("상담 완료 업데이트")
+  @PutMapping(value = "/{counselUid}/updateComplete", produces = {Constants.RESPONSE_CONTENT_TYPE})
+  public ResponseEntity<String> updateCompleteCounsel(@PathVariable("counselUid") long counselUid,
+      CounselUpdateRequestModel requestModel,
+      BindingResult bindingResult) {
+
+    requestModel.setCounselUid(counselUid);
+    ResponseModel responseModel = new ResponseModel();
+
+    CounselUpdateRequestValidator.builder().build().validate(requestModel, bindingResult);
+
+    if (bindingResult.hasErrors()) {
+      responseModel.setStatus(HttpStatus.PRECONDITION_FAILED.value());
+      responseModel.setMessage(bindingResult.getAllErrors().get(0).getDefaultMessage());
+    } else {
+      try {
+        counselService.updateCompleteCounsel(requestModel);
+      } catch (ServiceException e) {
+        responseModel.setStatus(HttpStatus.PRECONDITION_FAILED.value());
+        responseModel.setMessage(e.getMessage());
+      } catch (Exception e) {
+        responseModel.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        responseModel.setMessage(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
+        responseModel.error.setErrorCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        responseModel.error.setErrorMessage(e.getLocalizedMessage());
+      }
+    }
+
+    return responseModel.toResponse();
+  }
+
+  @ApiOperation("상담 취소 업데이트")
+  @PutMapping(value = "/{counselUid}/updateCancel", produces = {Constants.RESPONSE_CONTENT_TYPE})
+  public ResponseEntity<String> updateCancelCounsel(@PathVariable("counselUid") long counselUid,
+      CounselUpdateRequestModel requestModel,
+      BindingResult bindingResult) {
+
+    requestModel.setCounselUid(counselUid);
+    ResponseModel responseModel = new ResponseModel();
+
+    CounselUpdateRequestValidator.builder().build().validate(requestModel, bindingResult);
+
+    if (bindingResult.hasErrors()) {
+      responseModel.setStatus(HttpStatus.PRECONDITION_FAILED.value());
+      responseModel.setMessage(bindingResult.getAllErrors().get(0).getDefaultMessage());
+    } else {
+      try {
+        counselService.updateCancelCounsel(requestModel);
+      } catch (ServiceException e) {
+        responseModel.setStatus(HttpStatus.PRECONDITION_FAILED.value());
+        responseModel.setMessage(e.getMessage());
+      } catch (Exception e) {
+        responseModel.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        responseModel.setMessage(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
+        responseModel.error.setErrorCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        responseModel.error.setErrorMessage(e.getLocalizedMessage());
+      }
+    }
+
+    return responseModel.toResponse();
   }
 
 }

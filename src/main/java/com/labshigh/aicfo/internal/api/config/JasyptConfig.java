@@ -5,6 +5,7 @@ import com.ulisesbocchio.jasyptspringboot.annotation.EnableEncryptableProperties
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.stream.Collectors;
 import lombok.extern.log4j.Log4j2;
 import org.jasypt.encryption.StringEncryptor;
@@ -44,8 +45,8 @@ public class JasyptConfig {
     ClassPathResource resource = new ClassPathResource("jasypt.props");
     String result = null;
     try {
-      result = new BufferedReader(new InputStreamReader(resource.getInputStream(), "UTF-8"))
-          .lines().collect(Collectors.joining(""));
+      result = new BufferedReader(new InputStreamReader(resource.getInputStream(),
+          StandardCharsets.UTF_8)).lines().collect(Collectors.joining(""));
 
       return result;
     } catch (IOException e) {

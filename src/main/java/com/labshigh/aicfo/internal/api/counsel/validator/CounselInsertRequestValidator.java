@@ -3,7 +3,6 @@ package com.labshigh.aicfo.internal.api.counsel.validator;
 import com.labshigh.aicfo.core.utils.StringUtils;
 import com.labshigh.aicfo.internal.api.common.Constants;
 import com.labshigh.aicfo.internal.api.counsel.model.request.CounselInsertRequestModel;
-import java.time.LocalDateTime;
 import lombok.Builder;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
@@ -45,8 +44,13 @@ public class CounselInsertRequestValidator implements Validator {
           String.format(Constants.MSG_REQUIRE_FIELD_ERROR, "phoneNumber"));
     }
 
-    if (requestModel.getCounselAt() == null ||
+    /*if (requestModel.getCounselAt() == null ||
         requestModel.getCounselAt().isBefore(LocalDateTime.now())) {
+      errors.reject("counselAt.required",
+          String.format(Constants.MSG_REQUIRE_FIELD_ERROR, "counselAt"));
+    }*/
+
+    if (requestModel.getCounselAt() == null) {
       errors.reject("counselAt.required",
           String.format(Constants.MSG_REQUIRE_FIELD_ERROR, "counselAt"));
     }
