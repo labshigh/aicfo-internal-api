@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.labshigh.aicfo.internal.api.cfo.mapper.CfoMapper">
+
+  <insert id="insert" keyProperty="uid" parameterType="com.labshigh.aicfo.internal.api.cfo.dao.CfoDao" useGeneratedKeys="true">
+    INSERT INTO cfo(name, counsel_kind_common_code_uid,career,profile_uri)
+    VALUES (#{name}, #{counsel_kind_common_code_uid} , #{career} , #{profile_uri})
+  </insert>
+
+  <delete id="delete">
+    UPDATE cfo
+    SET deleted_flag = true
+    WHERE uid = #{uid}
+  </delete>
+
+  <select id="list" resultType="com.labshigh.aicfo.internal.api.cfo.dao.CfoDao">
+    SELECT c.uid,
+           c.created_at,
+           c.updated_at,
+           c.deleted_flag,
+           c.used_flag,
+           c.name,
+           c.counsel_kind_common_code_uid,
+           cc.name AS counsel_kind_common_code_name,
+           c.career,
+           c.profile_uri
+    FROM cfo c LEFT OUTER JOIN common_code cc ON c.counsel_kind_common_code_uid = cc.uid AND cc.used_flag = true AND cc.deleted_flag = false
+    WHERE c.deleted_flag = false
+            AND c.used_flag = true
+        <if test="counselKindCommonCodeUid > 0">
+            AND c.counsel_kind_common_code_uid = #{counselKindCommonCodeUid}
+        </if>
+  </select>
+
+
+</mapper>
