@@ -86,34 +86,4 @@ public class TransactionHistoryController {
     return responseModel.toResponse();
   }
 
-  @ApiOperation("거래내역 입금 webhook Event 입력")
-  @PostMapping(value = "/event", produces = {Constants.RESPONSE_CONTENT_TYPE})
-  public ResponseEntity<String> insertEvent(
-    @RequestBody TransactionEventWalletInsertRequestModel requestModel,
-    BindingResult bindingResult) {
-    ResponseModel responseModel = new ResponseModel();
-
-    TransactionEventInsertRequestValidator.builder().build()
-      .validate(requestModel, bindingResult);
-
-    if (bindingResult.hasErrors()) {
-      responseModel.setStatus(HttpStatus.PRECONDITION_FAILED.value());
-      responseModel.setMessage(bindingResult.getAllErrors().get(0).getDefaultMessage());
-    } else {
-      try {
-        transactionHistoryService.insertEvent(requestModel);
-      } catch (ServiceException e) {
-        responseModel.setStatus(HttpStatus.PRECONDITION_FAILED.value());
-        responseModel.setMessage(e.getMessage());
-      } catch (Exception e) {
-        responseModel.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
-        responseModel.setMessage(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
-        responseModel.error.setErrorCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
-        responseModel.error.setErrorMessage(e.getLocalizedMessage());
-      }
-    }
-
-    return responseModel.toResponse();
-  }
-
 }

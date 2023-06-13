@@ -23,30 +23,15 @@ public class MemberResponseModel {
   private boolean usedFlag;
   private String nickname;
   private String email;
+  private String password;
   private boolean emailVerifiedFlag;
   private String phoneNumber;
   private boolean phoneVerifiedFlag;
   private boolean emailNewsletterFlag;
-  private boolean otpFlag;
-  private String nationalCode;
-  private String referrer;
-  private String referrerCode;
-  private String walletAddress;
-  private boolean juminFlag;
-  private boolean codeFlag;
-  private String code;
-  @JsonFormat(pattern = Constants.JSONFY_DATE_FORMAT)
-  private LocalDateTime codeDate;
-
-  private String approveType;
-  private Long approveId;
-  @JsonFormat(pattern = Constants.JSONFY_DATE_FORMAT)
-  private LocalDateTime approveDate;
-  private BigDecimal mEth;
-  private boolean migratedFlag;
-
-  private Long walletId;
-  private boolean imsiPasswordFlag;
-  private String cryptobroId;
-  private String migBalance;
+  private boolean smsSendFlag;
+  private boolean termsOfUse;
+  private boolean privacyPolicy;
+  private boolean personalInfoUse;
+  private boolean userAgeVerification;
+  private String snsType;
 }

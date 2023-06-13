@@ -15,8 +15,6 @@ import com.labshigh.aicfo.internal.api.transaction.model.request.TransactionHist
 import com.labshigh.aicfo.internal.api.transaction.model.request.TransactionHistoryRequestModel;
 import com.labshigh.aicfo.internal.api.transaction.model.request.TransactionHistoryWalletInsertRequestModel;
 import com.labshigh.aicfo.internal.api.transaction.model.response.TransactionHistoryResponseModel;
-import com.labshigh.aicfo.internal.api.wallet.dao.MemberWalletDao;
-import com.labshigh.aicfo.internal.api.wallet.mapper.MemberWalletMapper;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
@@ -38,7 +36,6 @@ public class TransactionHistoryService {
   private final TransactionHistoryMapper transactionHistoryMapper;
 
   private final TransactionEventMapper transactionEventMapper;
-  private final MemberWalletMapper memberWalletMapper;
   private final MemberMapper memberMapper;
 
   private final TelegramUtils telegramUtils;
@@ -65,72 +62,6 @@ public class TransactionHistoryService {
         .transactionKindUid(request.getTransactionKindUid())
         .transactionUid(request.getTransactionUid())
         .build());
-  }
-
-  public void insertEvent(TransactionEventWalletInsertRequestModel request) {
-    MemberWalletDao memberWalletDao = memberWalletMapper.get(
-        MemberWalletDao.builder().userId(request.getUserId()).build());
-
-    BigDecimal amount = BigDecimal.valueOf(request.getAmount()).setScale(3, RoundingMode.DOWN);
-    TransactionEventDao transactionEventDao = TransactionEventDao.builder()
-        .userId(request.getUserId())
-        .tokenId(request.getTokenId())
-        .tokenSymbol(request.getTokenSymbol())
-        .transactionId(request.getTransactionId())
-        .amount(amount)
-        .fromAddress(request.getFromAddress())
-        .fromUserId(request.getFromUserId())
-        .toAddress(request.getToAddress())
-        .toUserId(request.getToUserId())
-        .transactionType(request.getTransactionType())
-        .transactionStatus(request.getTransactionStatus())
-        .txHash(request.getTxHash())
-        .memberUid(memberWalletDao.getMemberUid())
-        .build();
-
-    transactionEventMapper.insert(transactionEventDao);
-    if ("II".equals(request.getTransactionType()) || "EI".equals(request.getTransactionType())) {
-      long transactionKindUid =15;
-       if( "EI".equals(request.getTransactionType() ))
-       {
-         transactionKindUid =16;
-       }
-
-      transactionHistoryMapper.insert(TransactionHistoryDao.builder()
-          .price(amount)
-          .unit("ETH")
-          .memberUid(memberWalletDao.getMemberUid())
-          .transactionKindUid(transactionKindUid)
-          .transactionUid(request.getTransactionId())
-          .userId(request.getUserId())
-          .txHash(request.getTxHash())
-          .build());
-      if( "EI".equals(request.getTransactionType() )){
-        // 텔레그렘 외부 입금 메세지
-        LocalDateTime now = LocalDateTime.now();
-        LocalDateTime endAt = LocalDateTime.of(now.getYear(), now.getMonth(), now.getDayOfMonth(), now.getHour(), 0, 0);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-        MemberDao memberDao = memberMapper.get(MemberDao.builder()
-          .uid(memberWalletDao.getMemberUid()).build());
-        String msg = memberDao.getEmail();
-        if( !StringUtils.isEmpty(memberDao.getNickname()) ){
-          msg = msg + "("+memberDao.getNickname() +")";
-        }
-        msg = msg + " "+amount+" ETH ("+now.format(formatter).toString() +") 입금";
-        try {
-          this.sendTelegram(msg);
-        } catch (InterruptedException e) {
-          log.error(e.getMessage());
-        }
-      }
-
-    }
-
-
-
-
-
   }
 
   public ResponseListModel list(TransactionHistoryRequestModel request) {

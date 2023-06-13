@@ -34,35 +34,13 @@ public class MemberDao {
   private String phoneNumber;
   private boolean phoneVerifiedFlag;
   private boolean emailNewsletterFlag;
-  private boolean otpFlag;
-  private String nationalCode;
-  private String walletAddress;
-  private String referrer;
-
-  private String referrerCode;
-
+  private boolean smsSendFlag;
   private boolean termsOfUse;
   private boolean privacyPolicy;
-  private boolean juminFlag;
-  private boolean codeFlag;
-  private long juminFileId;
-  private long codeFileId;
-  private String code;
-  @JsonFormat(pattern = Constants.JSONFY_DATE_FORMAT)
-  private LocalDateTime codeDate;
-
-  private String approveType;
-  private Long approveId;
-  @JsonFormat(pattern = Constants.JSONFY_DATE_FORMAT)
-  private LocalDateTime approveDate;
-  private BigDecimal mEth;
-  private boolean migratedFlag;
-  private Long walletId;
-  private boolean imsiPasswordFlag;
-  private String cryptobroId;
-
-  // 이관 체크용
-  private String migBalance;
+  private boolean personalInfoUse;
+  private boolean userAgeVerification;
+  private String snsType;
+  private SnsInfoDao snsInfoDao;
 
 
 
