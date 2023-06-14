@@ -58,7 +58,7 @@ public class FileUploadUtils {
         StandardCopyOption.REPLACE_EXISTING);
 
     this.upload(tmpFile, objectName, bucketName, folderName);
-    return "https://" + s3EndPoint + "/" + folderName + objectName;
+    return "https://" + s3EndPoint + "/" + s3NftBucket + "/" + folderName + objectName;
   }
 
   public String uploadByObject(Object obj, String pathName, FileType fileType) throws IOException {
@@ -72,7 +72,7 @@ public class FileUploadUtils {
     Files.copy(inputStream, tmpFile.toPath(),
         StandardCopyOption.REPLACE_EXISTING);
     this.upload(tmpFile, objectName, buketName, folderName);
-    return "https://" + s3EndPoint + "/" + folderName + objectName;
+    return "https://" + s3EndPoint + "/" + s3NftBucket + "/" + folderName + objectName;
   }
 
   private void upload(File tmpFile, String objectName, String bucketName, String folderName)
