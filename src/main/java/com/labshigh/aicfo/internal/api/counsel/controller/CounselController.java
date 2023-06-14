@@ -8,6 +8,7 @@ import com.labshigh.aicfo.internal.api.counsel.model.request.CounselInsertReques
 import com.labshigh.aicfo.internal.api.counsel.model.request.CounselListRequestModel;
 import com.labshigh.aicfo.internal.api.counsel.model.request.CounselUpdateRequestModel;
 import com.labshigh.aicfo.internal.api.counsel.service.CounselService;
+import com.labshigh.aicfo.internal.api.counsel.validator.CounselCancelUpdateRequestValidator;
 import com.labshigh.aicfo.internal.api.counsel.validator.CounselDetailRequestValidator;
 import com.labshigh.aicfo.internal.api.counsel.validator.CounselInsertRequestValidator;
 import com.labshigh.aicfo.internal.api.counsel.validator.CounselListRequestValidator;
@@ -153,13 +154,13 @@ public class CounselController {
   @ApiOperation("상담 취소 업데이트")
   @PutMapping(value = "/{counselUid}/updateCancel", produces = {Constants.RESPONSE_CONTENT_TYPE})
   public ResponseEntity<String> updateCancelCounsel(@PathVariable("counselUid") long counselUid,
-      CounselUpdateRequestModel requestModel,
+      @RequestBody CounselUpdateRequestModel requestModel,
       BindingResult bindingResult) {
 
     requestModel.setCounselUid(counselUid);
     ResponseModel responseModel = new ResponseModel();
 
-    CounselUpdateRequestValidator.builder().build().validate(requestModel, bindingResult);
+    CounselCancelUpdateRequestValidator.builder().build().validate(requestModel, bindingResult);
 
     if (bindingResult.hasErrors()) {
       responseModel.setStatus(HttpStatus.PRECONDITION_FAILED.value());

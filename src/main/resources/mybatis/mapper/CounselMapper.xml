@@ -16,7 +16,10 @@
 
   <update id="updateCancel" >
     UPDATE counsel
-    SET cancel_flag = true
+    SET cancel_flag = true ,
+        cancel_at = NOW(),
+        cancel_reason_common_code_uid = #{cancelReasonCommonCodeUid},
+        cancel_reason = #{cancelReason}
     WHERE uid = #{uid} AND member_uid = #{memberUid}
   </update>
 

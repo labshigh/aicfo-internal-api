@@ -94,7 +94,8 @@ public class BoardReplyController {
 
   @ApiOperation("게시판 답변 수정")
   @PutMapping(value = "/{boardReplyUid}", produces = {Constants.RESPONSE_CONTENT_TYPE})
-  public ResponseEntity<String> updateBoardReply(BoardReplyUpdateRequestModel requestModel,
+  public ResponseEntity<String> updateBoardReply(
+      @RequestBody BoardReplyUpdateRequestModel requestModel,
       @PathVariable("boardReplyUid") long boardReplyUid,
       BindingResult bindingResult) {
 

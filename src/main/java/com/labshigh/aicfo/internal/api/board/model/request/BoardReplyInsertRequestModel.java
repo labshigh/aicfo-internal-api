@@ -8,8 +8,10 @@ import lombok.Setter;
 public class BoardReplyInsertRequestModel {
 
   private String content;
+
   private long boardUid;
   private long memberUid;
+  private long boardTypeCommonCodeUid;
 
 
 }

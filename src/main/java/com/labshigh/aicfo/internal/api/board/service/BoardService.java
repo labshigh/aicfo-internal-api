@@ -130,8 +130,10 @@ public class BoardService {
       if (count == 0) {
         throw new ServiceException(Constants.MSG_NO_DATA);
       }
+      BoardRecommendHistoryDao deleteDao = boardRecommendHistoryMapper.select(
+          boardRecommendHistoryDao);
       //히스토리 삭제
-      boardRecommendHistoryMapper.delete(boardRecommendHistoryDao);
+      boardRecommendHistoryMapper.delete(deleteDao);
     }
 
     BoardDao dao = BoardDao.builder().uid(requestModel.getBoardUid())

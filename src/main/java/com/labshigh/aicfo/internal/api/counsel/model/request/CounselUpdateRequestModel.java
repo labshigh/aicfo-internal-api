@@ -9,5 +9,8 @@ public class CounselUpdateRequestModel {
 
   private long counselUid;
   private long memberUid;
+  private long cancelReasonCommonCodeUid;
+  private String cancelReason;
+
 
 }

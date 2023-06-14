@@ -57,7 +57,9 @@ public class BoardReplyService {
   public BoardReplyResponseModel insert(BoardReplyInsertRequestModel requestModel) {
 
     //게시판 있는지 체크
-    BoardDao board = boardMapper.detail(BoardDao.builder().uid(requestModel.getBoardUid()).build());
+    BoardDao board = boardMapper.detail(
+        BoardDao.builder().uid(requestModel.getBoardUid())
+            .boardTypeCommonCodeUid(requestModel.getBoardTypeCommonCodeUid()).build());
     if (board == null) {
       throw new ServiceException(Constants.MSG_NO_DATA);
     }
