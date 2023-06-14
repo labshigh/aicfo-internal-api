@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.labshigh.aicfo.internal.api.inquiry.mapper.InquiryMapper">
+  <insert id="insert" keyProperty="uid" parameterType="com.labshigh.aicfo.internal.api.inquiry.dao.InquiryDao" useGeneratedKeys="true" >
+    INSERT INTO inquiry(inquiry_common_code_uid, inquiry_time, cfo_uid, member_uid)
+    VALUES (#{inquiryCommonCodeUid}, #{inquiryTime}, #{cfoUid}, #{memberUid})
+  </insert>
+
+  <update id="updateInquiryTime" >
+    UPDATE inquiry
+    SET inquiry_time = #{inquiryTime}
+    WHERE uid = #{uid}
+        AND member_uid = #{memberUid}
+  </update>
+  <select id="count" resultType="int">
+    SELECT COUNT(*)
+    FROM inquiry i LEFT OUTER JOIN common_code cc on i.inquiry_common_code_uid = cc.uid AND cc.used_flag = true AND cc.deleted_flag = false
+    WHERE i.used_flag = true
+      AND i.deleted_flag = false
+      AND i.member_uid = #{memberUid}
+  </select>
+
+  <select id="list" resultType="com.labshigh.aicfo.internal.api.inquiry.dao.InquiryDao" >
+    SELECT i.uid,
+            i.created_at,
+            i.updated_at,
+            i.deleted_flag,
+            i.used_flag,
+            i.inquiry_common_code_uid,
+            cc.name AS inquiry_common_code_name,
+            i.inquiry_time,
+            i.cfo_uid,
+            i.member_uid
+    FROM inquiry i LEFT OUTER JOIN common_code cc on i.inquiry_common_code_uid = cc.uid AND cc.used_flag = true AND cc.deleted_flag = false
+    WHERE i.used_flag = true
+        AND i.deleted_flag = false
+        AND i.member_uid = #{memberUid}
+    ORDER BY i.uid DESC
+    LIMIT #{offesetAndRowCount.offset}, #{offsetAndRowCount.rowCount}
+
+  </select>
+
+
+</mapper>
