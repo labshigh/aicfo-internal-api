@@ -1,9 +1,9 @@
 package com.labshigh.aicfo.internal.api.common.utils;
 
 import com.amazonaws.SdkClientException;
-import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.client.builder.AwsClientBuilder;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.AccessControlList;
@@ -152,10 +152,11 @@ public class FileUploadUtils {
 
   private AmazonS3 getAmazonS3() {
     // S3 client
-    AWSCredentials credentials = new BasicAWSCredentials(ncloudAccessKey, ncloudSecretKey);
-    AmazonS3 s3 = AmazonS3ClientBuilder.standard().withCredentials
-            (new AWSStaticCredentialsProvider(credentials))
-        .withRegion(s3Region).build();
+    AmazonS3 s3 = AmazonS3ClientBuilder.standard()
+        .withEndpointConfiguration(new AwsClientBuilder.EndpointConfiguration(s3EndPoint, s3Region))
+        .withCredentials(new AWSStaticCredentialsProvider(
+            new BasicAWSCredentials(ncloudAccessKey, ncloudSecretKey)))
+        .build();
 
     return s3;
   }
