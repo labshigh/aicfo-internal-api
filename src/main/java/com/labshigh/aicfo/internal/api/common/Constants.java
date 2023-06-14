@@ -155,6 +155,13 @@ public class Constants {
   public static final String MSG_TOTP_NOT_USED = "Not yet used the totp.";
   public static final String MSG_TOTP_CODE_LENGTH_FIELD_ERROR = "Please input the proper code in 6 digit.";
 
+  // counsel
+
+  public static final String MSG_COUNSEL_ALREADY_COMPLETE_ERROR = "이미 완료된 상담예약입니다.";
+  public static final String MSG_COUNSEL_COMPLETE_CANCEL_ERROR = "상담 완료된 건은 취소 할 수 없습니다.";
+  public static final String MSG_COUNSEL_ALREADY_CANCEL_ERROR = "이미 취소된 상담예약입니다.";
+  public static final String MSG_COUNSEL_NOW_DATETIME_CANCEL_ERROR = "상담시간이 지난 상담예약은 취소 할 수 없습니다.";
+
   private Constants() {
     throw new IllegalStateException("Constants Class");
   }

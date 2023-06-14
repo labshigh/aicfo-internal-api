@@ -64,11 +64,16 @@
         cfo.name as cfo_name,
         cfo.career,
         cfo.profile_uri,
-        cs.cancel_flag
+        cs.cancel_flag,
+        cs.cancel_at,
+        cs.cancel_reason_common_code_uid,
+        reason.name AS cance_reason_common_code_name,
+        cs.cancel_reason
     FROM counsel cs LEFT OUTER JOIN common_code kind on cs.counsel_kind_common_code_uid = kind.uid AND kind.used_flag = true AND kind.deleted_flag = false
         LEFT OUTER JOIN common_code res on cs.counsel_reservation_common_code_uid = res.uid AND res.used_flag = true AND res.deleted_flag = false
         LEFT OUTER JOIN common_code pay on cs.counsel_payment_common_code_uid = pay.uid AND pay.used_flag = true AND pay.deleted_flag = false
         LEFT OUTER JOIN common_code at on cs.counsel_at_common_code_uid = at.uid AND at.used_flag = true AND at.deleted_flag = false
+        LEFT OUTER JOIN common_code reason on cs.cancel_reason_common_code_uid = reason.uid AND reason.used_flag = true AND reason.deleted_flag = false
         LEFT OUTER JOIN cfo  on cs.cfo_uid = cfo.uid AND cfo.used_flag = true AND cfo.deleted_flag = false
     WHERE cs.deleted_flag = false
             AND cs.used_flag = true
@@ -116,11 +121,16 @@
       cfo.name as cfo_name,
       cfo.career,
       cfo.profile_uri,
-      cs.cancel_flag
+      cs.cancel_flag,
+      cs.cancel_at,
+      cs.cancel_reason_common_code_uid,
+      reason.name AS cance_reason_common_code_name,
+      cs.cancel_reason
     FROM counsel cs LEFT OUTER JOIN common_code kind on cs.counsel_kind_common_code_uid = kind.uid AND kind.used_flag = true AND kind.deleted_flag = false
     LEFT OUTER JOIN common_code res on cs.counsel_reservation_common_code_uid = res.uid AND res.used_flag = true AND res.deleted_flag = false
     LEFT OUTER JOIN common_code pay on cs.counsel_payment_common_code_uid = pay.uid AND pay.used_flag = true AND pay.deleted_flag = false
     LEFT OUTER JOIN common_code at on cs.counsel_at_common_code_uid = at.uid AND at.used_flag = true AND at.deleted_flag = false
+    LEFT OUTER JOIN common_code reason on cs.cancel_reason_common_code_uid = reason.uid AND reason.used_flag = true AND reason.deleted_flag = false
     LEFT OUTER JOIN cfo  on cs.cfo_uid = cfo.uid AND cfo.used_flag = true AND cfo.deleted_flag = false
     WHERE cs.deleted_flag = false
     AND cs.used_flag = true

@@ -123,7 +123,7 @@ public class CounselController {
   @ApiOperation("상담 완료 업데이트")
   @PutMapping(value = "/{counselUid}/updateComplete", produces = {Constants.RESPONSE_CONTENT_TYPE})
   public ResponseEntity<String> updateCompleteCounsel(@PathVariable("counselUid") long counselUid,
-      CounselUpdateRequestModel requestModel,
+      @RequestBody CounselUpdateRequestModel requestModel,
       BindingResult bindingResult) {
 
     requestModel.setCounselUid(counselUid);

@@ -44,6 +44,10 @@ public class CounselDao {
   private String career;
   private String profileUri;
   private boolean cancelFlag;
-
+  private long cancelReasonCommonCodeUid;
+  private long cancelReasonCommonCodeName;
+  private String cancelReason;
+  @JsonFormat(pattern = Constants.JSONFY_DATE_FORMAT)
+  private LocalDateTime cancelAt;
 
 }

@@ -50,7 +50,7 @@ public class CounselInsertRequestValidator implements Validator {
           String.format(Constants.MSG_REQUIRE_FIELD_ERROR, "counselAt"));
     }*/
 
-    if (requestModel.getCounselAt() == null) {
+    if (StringUtils.isEmpty(requestModel.getCounselAt())) {
       errors.reject("counselAt.required",
           String.format(Constants.MSG_REQUIRE_FIELD_ERROR, "counselAt"));
     }

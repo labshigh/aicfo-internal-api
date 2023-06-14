@@ -1,6 +1,8 @@
 package com.labshigh.aicfo.internal.api.counsel.service;
 
 import com.labshigh.aicfo.core.models.ResponseListModel;
+import com.labshigh.aicfo.internal.api.common.Constants;
+import com.labshigh.aicfo.internal.api.common.exceptions.ServiceException;
 import com.labshigh.aicfo.internal.api.counsel.dao.CounselDao;
 import com.labshigh.aicfo.internal.api.counsel.dao.CounselFileDao;
 import com.labshigh.aicfo.internal.api.counsel.mapper.CounselFileMapper;
@@ -14,6 +16,7 @@ import com.labshigh.aicfo.internal.api.counsel.model.response.CounselFileRespons
 import com.labshigh.aicfo.internal.api.counsel.model.response.CounselResponseModel;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -65,6 +68,10 @@ public class CounselService {
     CounselDao dao = counselMapper.detail(CounselDao.builder().uid(requestModel.getCounselUid())
         .memberUid(requestModel.getMemberUid()).build());
 
+    if (dao == null) {
+      throw new ServiceException(Constants.MSG_NO_DATA);
+    }
+
     return convertCounselResponseModel(dao, true);
 
   }
@@ -95,13 +102,14 @@ public class CounselService {
     counselMapper.insert(dao);
 
     result = convertCounselResponseModel(dao, false);
-    result.setFileList(Collections.emptyList());
+    result.setFileList(
+        requestModel.getFileList().isEmpty() ? Collections.emptyList() : new ArrayList<>());
 
     if (!requestModel.getFileList().isEmpty()) {
       for (CounselFileInsertModel counselFileInsertModel : requestModel.getFileList()) {
         CounselFileDao counselFileDao = CounselFileDao.builder()
             .counselUid(dao.getUid())
-            .uri(counselFileInsertModel.getUri())
+            .uri(getReplaceFileUri(counselFileInsertModel.getUri()))
             .fileName(counselFileInsertModel.getFileName())
             .build();
 
@@ -117,18 +125,48 @@ public class CounselService {
 
   @Transactional
   public void updateCompleteCounsel(CounselUpdateRequestModel requestModel) {
-    counselMapper.updateComplete(CounselDao.builder()
+    CounselDao dao = CounselDao.builder()
         .uid(requestModel.getCounselUid())
         .memberUid(requestModel.getMemberUid())
-        .build());
+        .build();
+
+    CounselDao detail = counselMapper.detail(dao);
+
+    if (detail.isCancelFlag()) {
+      throw new ServiceException(Constants.MSG_COUNSEL_ALREADY_CANCEL_ERROR);
+    }
+
+    if (detail.isCompleteFlag()) {
+      throw new ServiceException(Constants.MSG_COUNSEL_ALREADY_COMPLETE_ERROR);
+    }
+
+    counselMapper.updateComplete(dao);
   }
 
   @Transactional
   public void updateCancelCounsel(CounselUpdateRequestModel requestModel) {
-    counselMapper.updateCancel(CounselDao.builder()
+    CounselDao dao = CounselDao.builder()
         .uid(requestModel.getCounselUid())
         .memberUid(requestModel.getMemberUid())
-        .build());
+        .cancelReasonCommonCodeUid(requestModel.getCancelReasonCommonCodeUid())
+        .cancelReason(requestModel.getCancelReason())
+        .build();
+
+    CounselDao detail = counselMapper.detail(dao);
+
+    if (detail.getCounselAt().isBefore(LocalDateTime.now())) {
+      throw new ServiceException(Constants.MSG_COUNSEL_NOW_DATETIME_CANCEL_ERROR);
+    }
+
+    if (detail.isCompleteFlag()) {
+      throw new ServiceException(Constants.MSG_COUNSEL_ALREADY_COMPLETE_ERROR);
+    }
+
+    if (detail.isCancelFlag()) {
+      throw new ServiceException(Constants.MSG_COUNSEL_ALREADY_CANCEL_ERROR);
+    }
+
+    counselMapper.updateCancel(dao);
   }
 
 
@@ -165,6 +203,10 @@ public class CounselService {
         .career(dao.getCareer())
         .profileUri(dao.getProfileUri())
         .cancelFlag(dao.isCancelFlag())
+        .cancelReasonCommonCodeUid(dao.getCancelReasonCommonCodeUid())
+        .cancelReasonCommonCodeName(dao.getCancelReasonCommonCodeName())
+        .cancelReason(dao.getCancelReason())
+        .cancelAt(dao.getCancelAt())
         .fileList(fileList)
         .build();
 
@@ -191,5 +233,16 @@ public class CounselService {
 
     return "https://" + s3EndPoint + "/" + s3NftBucket + "/" + uri;
   }
+
+
+  private String getReplaceFileUri(String uri) {
+
+    if (uri == null) {
+      return null;
+    }
+
+    return uri.replaceAll("https://" + s3EndPoint + "/" + s3NftBucket + "/", "");
+  }
+
 
 }
