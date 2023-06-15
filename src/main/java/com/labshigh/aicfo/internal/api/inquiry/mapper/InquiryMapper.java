@@ -17,4 +17,6 @@ public interface InquiryMapper {
   int count(InquiryListRequestModel requestModel);
 
   List<InquiryDao> list(InquiryListRequestModel requestModel);
+
+  InquiryDao detail(InquiryDao dao);
 }

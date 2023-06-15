@@ -25,7 +25,7 @@ public class InquiryDao {
   private Boolean usedFlag;
 
   private long inquiryCommonCodeUid;
-  private long inquiryCommonCodeName;
+  private String inquiryCommonCodeName;
   private String inquiryTime;
   private long cfoUid;
   private long memberUid;

@@ -1,6 +1,9 @@
 package com.labshigh.aicfo.internal.api.inquiry.service;
 
 import com.labshigh.aicfo.core.models.ResponseListModel;
+import com.labshigh.aicfo.core.utils.StringUtils;
+import com.labshigh.aicfo.internal.api.common.Constants;
+import com.labshigh.aicfo.internal.api.common.exceptions.ServiceException;
 import com.labshigh.aicfo.internal.api.inquiry.dao.InquiryDao;
 import com.labshigh.aicfo.internal.api.inquiry.mapper.InquiryMapper;
 import com.labshigh.aicfo.internal.api.inquiry.model.request.InquiryInsertRequestModel;
@@ -62,11 +65,24 @@ public class InquiryService {
 
   @Transactional
   public void updateInquiryTime(InquiryUpdateRequestModel requestModel) {
-    inquiryMapper.updateInquiryTime(InquiryDao.builder()
+
+    InquiryDao dao = InquiryDao.builder()
         .uid(requestModel.getUid())
         .memberUid(requestModel.getMemberUid())
         .inquiryTime(requestModel.getInquiryTime())
-        .build());
+        .build();
+
+    InquiryDao detail = inquiryMapper.detail(dao);
+
+    if (detail == null) {
+      throw new ServiceException(Constants.MSG_NO_DATA);
+    }
+
+    if (!StringUtils.isEmpty(detail.getInquiryTime())) {
+      throw new ServiceException(Constants.MSG_INQUIRY_ALREADY_UPDATE_INQUIRY_TIME_ERROR);
+    }
+
+    inquiryMapper.updateInquiryTime(dao);
   }
 
 

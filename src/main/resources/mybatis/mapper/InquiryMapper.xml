@@ -37,7 +37,25 @@
         AND i.deleted_flag = false
         AND i.member_uid = #{memberUid}
     ORDER BY i.uid DESC
-    LIMIT #{offesetAndRowCount.offset}, #{offsetAndRowCount.rowCount}
+    LIMIT #{offsetAndRowCount.offset}, #{offsetAndRowCount.rowCount}
+  </select>
+
+  <select id="detail" resultType="com.labshigh.aicfo.internal.api.inquiry.dao.InquiryDao" >
+    SELECT i.uid,
+          i.created_at,
+          i.updated_at,
+          i.deleted_flag,
+          i.used_flag,
+          i.inquiry_common_code_uid,
+          cc.name AS inquiry_common_code_name,
+          i.inquiry_time,
+          i.cfo_uid,
+          i.member_uid
+    FROM inquiry i LEFT OUTER JOIN common_code cc on i.inquiry_common_code_uid = cc.uid AND cc.used_flag = true AND cc.deleted_flag = false
+    WHERE i.used_flag = true
+    AND i.deleted_flag = false
+    AND i.member_uid = #{memberUid}
+    AND i.uid = #{uid}
 
   </select>
 

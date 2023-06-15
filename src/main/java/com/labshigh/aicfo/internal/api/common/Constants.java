@@ -162,6 +162,9 @@ public class Constants {
   public static final String MSG_COUNSEL_ALREADY_CANCEL_ERROR = "이미 취소된 상담예약입니다.";
   public static final String MSG_COUNSEL_NOW_DATETIME_CANCEL_ERROR = "상담시간이 지난 상담예약은 취소 할 수 없습니다.";
 
+  // inquiry
+  public static final String MSG_INQUIRY_ALREADY_UPDATE_INQUIRY_TIME_ERROR = "이미 상담시간이 업데이트 되어 있습니다.";
+
   private Constants() {
     throw new IllegalStateException("Constants Class");
   }
