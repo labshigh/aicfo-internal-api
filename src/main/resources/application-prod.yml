@@ -8,9 +8,9 @@ spring:
     database: 0
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ENC(45gzFan+xttEb8+4SYHg12O6luf2A2GAxUwPrULL5+02o+YCHnk/SfialODbLNQIy7IZYLIELrDjeEMEVqc0yEqlPZiQNYZsncYoD1aqCYsic2jU4eYHv9ugyA76XqCKfNva/Ay4Wb0lWdPGR5GeDUgxOkAb8xG9szPnpp30Mr1jC8U+mnY5Qkrq9sFonMinnPYKhIOngNEGlDR8dgA/BnTzn+Jv8vXr864aPESW5F0pOn0S7M276sL0xaZLmwLk941rUqcg7aE35x7sfXwxu/2r5JyV/rXRBmII7OzeSSA1vKOqVn/jPg==)
-    username: ENC(SGNdzG2j7S8DQQB6Apc++w==)
-    password: ENC(7wNqXHb5yJTUiUROv4eAtXNMIALZEguD5emcPZGumps=)
+    url: ENC(8IZXhBFj26FmFaid07I5H/zdAiGnpr4Cixa+WeW/Qz7cmSg569Zu3M+afe4bsLu5yuMGfYsniOU=)
+    username: ENC(R/AJTVoIauIU45Qex9CIjQ==)
+    password: ENC(gzJfFMAGivHTOY3iRNHth+D0EnzHS+s7ed5fxHNLYWc=)
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
       max-lifetime: 26000
