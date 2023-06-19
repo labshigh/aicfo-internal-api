@@ -8,12 +8,10 @@ spring:
     database: 0
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    #url: ENC(8IZXhBFj26FmFaid07I5H/zdAiGnpr4Cixa+WeW/Qz7cmSg569Zu3M+afe4bsLu5yuMGfYsniOU=)
-    #username: ENC(R/AJTVoIauIU45Qex9CIjQ==)
-    #password: ENC(gzJfFMAGivHTOY3iRNHth+D0EnzHS+s7ed5fxHNLYWc=)
-    url: jdbc:mysql://db-9cd8v.vpc-cdb.ntruss.com:3306/aicfo?&zeroDateTimeBehavior=convertToNull&autoReconnect=true&noAccessToProcedureBodies=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Seoul
-    username: aicfo
-    password: J5d{(Lq],R,ncOW9q
+    url: ENC(fT6mG6NJRqriL5+9qp/fGUExe+gniMhcjcC667TzWhGdaMSajomv/zonz98Lt25t8t/9DHKhbLbLUdzGKTDC6Ase/uz68xU8vkGI8a4QTbO29qIP8VOFWk1dMvyb/WoEFprrMrdtiJ73T6wc5XzY3K0LJBgQxFRmeWJekPhWhsc7NSkQUTDCzGPs6RqdnKK4M7umynxmEDTtsi9lehd+U7lo89VdOUhelDnhKoaEnFzUkSDJTW9fgVZ9BoCAcGPgRj5D04j9dviCyfRA6/k438zQDH3uU39DG8dtF2UEbi66HzLBJhJ0hA==)
+    username: ENC(R/AJTVoIauIU45Qex9CIjQ==)
+    password: ENC(gzJfFMAGivHTOY3iRNHth+D0EnzHS+s7ed5fxHNLYWc=)
+
     type: com.zaxxer.hikari.HikariDataSource
     hikari:
       max-lifetime: 26000
