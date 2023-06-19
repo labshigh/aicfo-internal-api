@@ -11,7 +11,7 @@ spring:
     #url: ENC(8IZXhBFj26FmFaid07I5H/zdAiGnpr4Cixa+WeW/Qz7cmSg569Zu3M+afe4bsLu5yuMGfYsniOU=)
     #username: ENC(R/AJTVoIauIU45Qex9CIjQ==)
     #password: ENC(gzJfFMAGivHTOY3iRNHth+D0EnzHS+s7ed5fxHNLYWc=)
-    url: jdbc:mysql://db-9cd8v-kr.vpc-pub-cdb.ntruss.com:3306/aicfo?&zeroDateTimeBehavior=convertToNull&autoReconnect=true&noAccessToProcedureBodies=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Seoul
+    url: jdbc:mysql://db-9cd8v.vpc-cdb.ntruss.com:3306/aicfo?&zeroDateTimeBehavior=convertToNull&autoReconnect=true&noAccessToProcedureBodies=true&useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=Asia/Seoul
     username: aicfo
     password: J5d{(Lq],R,ncOW9q
     type: com.zaxxer.hikari.HikariDataSource
