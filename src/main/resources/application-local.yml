@@ -9,7 +9,7 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     ## 운영
-    url: ENC(8IZXhBFj26FmFaid07I5H/zdAiGnpr4Cixa+WeW/Qz7cmSg569Zu3M+afe4bsLu5yuMGfYsniOU=)
+    url: ENC(fT6mG6NJRqriL5+9qp/fGUExe+gniMhcjcC667TzWhGdaMSajomv/zonz98Lt25t8t/9DHKhbLbLUdzGKTDC6Ase/uz68xU8vkGI8a4QTbO29qIP8VOFWk1dMvyb/WoEFprrMrdtiJ73T6wc5XzY3K0LJBgQxFRmeWJekPhWhsc7NSkQUTDCzGPs6RqdnKK4M7umynxmEDTtsi9lehd+U7lo89VdOUhelDnhKoaEnFzUkSDJTW9fgVZ9BoCAcGPgRj5D04j9dviCyfRA6/k438zQDH3uU39DG8dtF2UEbi66HzLBJhJ0hA==)
     username: ENC(R/AJTVoIauIU45Qex9CIjQ==)
     password: ENC(gzJfFMAGivHTOY3iRNHth+D0EnzHS+s7ed5fxHNLYWc=)
 
@@ -85,3 +85,8 @@ telegram:
   chat_id: -1001590574818
   main_wallet_withdrawal_chat_id: -1001760450726
   admin_tracking_chat_id: -1001581943398
+
+  #Jasypt
+jasypt:
+  props:
+    file-path: /Users/home/jasypt.props
