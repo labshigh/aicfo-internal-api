@@ -69,7 +69,7 @@ telegram:
   main_wallet_withdrawal_chat_id: -1001760450726
   admin_tracking_chat_id: -1001581943398
 
-  #Jasypt
-jasypt:
-  props:
-    file-path: /home/mverse/apps/aicfo-internal-api/jasypt.props
+    #Jasypt
+    #jasypt:
+    #props:
+  #file-path: /home/mverse/apps/aicfo-internal-api/jasypt.props
