@@ -9,6 +9,7 @@ import lombok.extern.log4j.Log4j2;
 @Log4j2
 public class StringUtils {
 
+
   public static boolean isEmpty(String str) {
     if (str == null || str.isEmpty()) {
       return true;
@@ -44,6 +45,25 @@ public class StringUtils {
       result = null;
     }
     return result;
+  }
+
+  public static String getFileUri(String uri, String s3EndPoint, String s3NftBucket) {
+
+    if (uri == null) {
+      return null;
+    }
+
+    return "https://" + s3EndPoint + "/" + s3NftBucket + "/" + uri;
+  }
+
+
+  public static String getReplaceFileUri(String uri, String s3EndPoint, String s3NftBucket) {
+
+    if (uri == null) {
+      return null;
+    }
+
+    return uri.replaceAll("https://" + s3EndPoint + "/" + s3NftBucket + "/", "");
   }
 
 }

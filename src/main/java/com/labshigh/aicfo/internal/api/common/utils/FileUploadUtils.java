@@ -146,6 +146,12 @@ public class FileUploadUtils {
       case board_content:
         result = fileType.name() + "/" + commonCodeUid + "/" + pathName + "/";
         break;
+      case company_portfolio:
+        result = fileType.name() + "/" + pathName + "/";
+        break;
+      default:
+        result = fileType.name() + "/" + pathName + "/";
+        break;
     }
     return result;
   }

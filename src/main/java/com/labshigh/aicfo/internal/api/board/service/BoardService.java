@@ -228,4 +228,13 @@ public class BoardService {
     return "https://" + s3EndPoint + "/" + s3NftBucket + "/" + uri;
   }
 
+  private String getReplaceFileUri(String uri) {
+
+    if (uri == null) {
+      return null;
+    }
+
+    return uri.replaceAll("https://" + s3EndPoint + "/" + s3NftBucket + "/", "");
+  }
+
 }
