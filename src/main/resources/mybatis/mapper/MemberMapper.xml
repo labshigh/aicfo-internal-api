@@ -72,7 +72,7 @@
                 ,#{personalInfoUse}
                 ,now()
                 ,#{userAgeVerification}
-                ,'none'
+                ,IFNULL(#{snsType}, 'none')
                 )
     </insert>
 
