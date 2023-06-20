@@ -135,8 +135,10 @@ public class MemberController {
         responseModel.setData(memberService.getSocialMemberInfo(memberSigninRequestModel.getEmail()));
       }
     } catch (ServiceException e) {
-      responseModel.setStatus(HttpStatus.NO_CONTENT.value());
+      responseModel.setStatus(HttpStatus.BAD_REQUEST.value());
       responseModel.setMessage(e.getMessage());
+      responseModel.error.setErrorCode(HttpStatus.BAD_REQUEST.value());
+      responseModel.error.setErrorMessage(e.getLocalizedMessage());
     } catch (Exception e) {
       responseModel.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
       responseModel.setMessage(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());

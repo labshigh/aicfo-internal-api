@@ -78,6 +78,7 @@ public class Constants {
   public static final String MSG_AMDIN_WITHDRAWAL_VERIFY_CONTENT_SMS = "[Martini Pool/ Admin] Main wallet withdrawal verification code is  %s";
 
   public static final String MSG_WALLET_INSUFFICIENT_BALANCE = "Available withdrawal quantity is insufficient.";
+  public static final String MSG_DUPLICATE_ACCOUNT = "다른 경로로 가입 완료된 이메일 아이디입니다.";
 
   // 계정 종류 (1:email, 2:metamask)
   public static final int MAX_KIND_INPUT = 2;

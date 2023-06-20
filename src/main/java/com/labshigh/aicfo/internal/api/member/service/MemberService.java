@@ -80,6 +80,8 @@ public class MemberService {
     if (memberDao == null) {
       memberDao = new MemberDao();
 //      throw new ServiceException(String.format(Constants.MSG_NO_DATA));
+    } else if(memberDao.getSnsType().equals("none")) {
+      throw new ServiceException(Constants.MSG_DUPLICATE_ACCOUNT);
     }
     return convertMemberResponseModel(memberDao);
   }
@@ -96,7 +98,7 @@ public class MemberService {
     SnsInfoDao snsInfo = new SnsInfoDao();
     snsInfo.setSnsName(memberInsertRequestModel.getSnsName());
     snsInfo.setSnsId(memberInsertRequestModel.getSnsId());
-    snsInfo.setSnsType(memberInsertRequestModel.getSnsType());
+    snsInfo.setSnsType(memberInsertRequestModel.getSnsName());
     MemberDao memberDAO = MemberDao.builder()
             .email(memberInsertRequestModel.getEmail())
             .password(password)
@@ -108,6 +110,7 @@ public class MemberService {
             .userAgeVerification(memberInsertRequestModel.isUserAgeVerification())
             .emailVerifiedFlag(memberInsertRequestModel.isEmailVerifiedFlag())
             .phoneNumber(memberInsertRequestModel.getPhoneNumber())
+            .snsType(memberInsertRequestModel.getSnsName())
             .usedFlag(false)
             .snsInfoDao(snsInfo)
             .build();
