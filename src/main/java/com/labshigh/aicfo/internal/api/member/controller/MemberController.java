@@ -148,5 +148,47 @@ public class MemberController {
     return responseModel.toResponse();
   }
 
+  @ApiOperation(value = "sms 인증 문자 발송")
+  @PostMapping(value = "/sendVerifySms", produces = {Constants.RESPONSE_CONTENT_TYPE})
+  public ResponseModel sendVerifySms(
+          @RequestBody MemberSendSmsVerifyRequestModel memberSendSmsVerifyRequestModel,
+          BindingResult bindingResult) {
+    ResponseModel responseModel = new ResponseModel();
+
+    try {
+      memberService.sendVerifySms(memberSendSmsVerifyRequestModel);
+    } catch (ServiceException e) {
+      responseModel.setStatus(HttpStatus.PRECONDITION_FAILED.value());
+      responseModel.setMessage(e.getMessage());
+    } catch (Exception e) {
+      responseModel.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+      responseModel.setMessage(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
+      responseModel.error.setErrorCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+      responseModel.error.setErrorMessage(e.getLocalizedMessage());
+    }
+    return responseModel;
+  }
+
+  @ApiOperation(value = "sms 인증")
+  @PutMapping(value = "/verifySms", produces = {Constants.RESPONSE_CONTENT_TYPE})
+  public ResponseModel verifySms(
+          @RequestBody MemberSendSmsVerifyRequestModel memberUpdatePhoneRequestModel,
+          BindingResult bindingResult) {
+    ResponseModel responseModel = new ResponseModel();
+
+    try {
+      memberService.updatePhone(memberUpdatePhoneRequestModel);
+    } catch (ServiceException e) {
+      responseModel.setStatus(HttpStatus.PRECONDITION_FAILED.value());
+      responseModel.setMessage(e.getMessage());
+    } catch (Exception e) {
+      responseModel.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+      responseModel.setMessage(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
+      responseModel.error.setErrorCode(HttpStatus.INTERNAL_SERVER_ERROR.value());
+      responseModel.error.setErrorMessage(e.getLocalizedMessage());
+    }
+    return responseModel;
+  }
+
 
 }

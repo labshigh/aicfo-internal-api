@@ -8,6 +8,8 @@ import com.labshigh.aicfo.internal.api.common.utils.FileUploadUtils;
 import com.labshigh.aicfo.internal.api.common.utils.MailUtils;
 import com.labshigh.aicfo.internal.api.common.utils.SmsUtils;
 import com.labshigh.aicfo.internal.api.common.utils.TelegramUtils;
+import com.labshigh.aicfo.internal.api.common.utils.models.SmsMessage;
+import com.labshigh.aicfo.internal.api.common.utils.models.SmsRequestModel;
 import com.labshigh.aicfo.internal.api.member.dao.MemberDao;
 import com.labshigh.aicfo.internal.api.member.dao.MemberLoginHistoryDao;
 import com.labshigh.aicfo.internal.api.member.dao.SnsInfoDao;
@@ -16,10 +18,12 @@ import com.labshigh.aicfo.internal.api.member.mapper.MemberLoginHistoryMapper;
 import com.labshigh.aicfo.internal.api.member.mapper.MemberMapper;
 import com.labshigh.aicfo.internal.api.member.model.request.MemberInsertRequestModel;
 import com.labshigh.aicfo.internal.api.member.model.request.MemberListRequestModel;
+import com.labshigh.aicfo.internal.api.member.model.request.MemberSendSmsVerifyRequestModel;
 import com.labshigh.aicfo.internal.api.member.model.request.MemberSigninRequestModel;
 import com.labshigh.aicfo.internal.api.member.model.response.MemberResponseModel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
@@ -29,8 +33,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Log4j2
@@ -147,6 +153,56 @@ public class MemberService {
 //              .memberUid(memberDao.getUid())
 //              .build());
       return convertMemberResponseModel(memberDao);
+    }
+  }
+
+  /**
+   * sms 인증문자 발송
+   * @param memberSendSmsVerifyRequestModel
+   */
+  public void sendVerifySms(MemberSendSmsVerifyRequestModel memberSendSmsVerifyRequestModel) {
+
+    String verifyCode = RandomStringUtils.randomNumeric(6);
+
+    String smsContent = String.format(Constants.MSG_VERIFY_CONTENT_SMS, verifyCode);
+
+    List<SmsMessage> smsMessages = new ArrayList<>();
+    smsMessages.add(SmsMessage.builder()
+            .to(memberSendSmsVerifyRequestModel.getPhoneNumber())
+            .content(smsContent)
+            .build());
+
+    SmsRequestModel smsRequestModel = SmsRequestModel.builder()
+            .type("LMS")
+            .contentType("COMM")
+            .countryCode(memberSendSmsVerifyRequestModel.getNationalCode())
+            .from(fromPhoneNumber)
+            .content(smsContent)
+            .messages(smsMessages)
+            .build();
+    smsUtils.send(smsRequestModel);
+
+    redisTemplate.opsForValue()
+            .set("aicfoVerifyPhonNumber:" + memberSendSmsVerifyRequestModel.getNationalCode()
+                            + memberSendSmsVerifyRequestModel.getPhoneNumber(),
+                    verifyCode, smsExpirationTime, TimeUnit.SECONDS);
+
+  }
+
+  /**
+   * sms 인증 코드 확인
+   * @param requestModel
+   */
+  @Transactional
+  public void updatePhone(MemberSendSmsVerifyRequestModel requestModel) {
+
+    // TODO : verifiedCode 로 인증번호 체크
+    Object verifiedCodeObj = redisTemplate.opsForValue().get(
+            "walletVerifyPhonNumber:" + requestModel.getNationalCode() + requestModel.getPhoneNumber());
+
+    if (verifiedCodeObj == null || !requestModel.getVerifyCode()
+            .equals(verifiedCodeObj.toString())) {
+      throw new ServiceException(Constants.MSG_TOKEN_ERROR);
     }
   }
 

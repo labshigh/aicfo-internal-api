@@ -10,4 +10,5 @@ public class MemberSendSmsVerifyRequestModel {
   private long memberUid;
   private String nationalCode;
   private String phoneNumber;
+  private String verifyCode;
 }
